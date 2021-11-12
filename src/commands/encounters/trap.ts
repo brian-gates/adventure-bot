@@ -4,7 +4,10 @@ import { trapAttack as trapAttack } from "../../trap/trap";
 import { sleep } from "../../utils";
 import { updateUserQuestProgess } from "../../quest/updateQuestProgess";
 
-export const trap = async (interaction: CommandInteraction): Promise<void> => {
+export const trap = async (
+  interaction: CommandInteraction,
+  isFollowUp = false
+): Promise<void> => {
   const message = await interaction.reply({
     embeds: [
       new MessageEmbed()

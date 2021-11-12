@@ -3,7 +3,8 @@ import { adjustHP, awardXP } from "../../gameState";
 // import { updateUserQuestProgess } from "../../quest/updateQuestProgess";
 
 export const fairyWell = async (
-  interaction: CommandInteraction
+  interaction: CommandInteraction,
+  isFollowUp = false
 ): Promise<void> => {
   const healAmount = Math.floor(Math.random() * 6);
   adjustHP(interaction.user.id, healAmount);

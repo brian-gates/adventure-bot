@@ -29,7 +29,7 @@ export class Node<T> {
   }
 }
 
-class Graph<T> {
+export class Graph<T> {
   nodes: Map<T, Node<T>> = new Map();
   comparator: (a: T, b: T) => number;
 
@@ -123,7 +123,7 @@ class Graph<T> {
     });
   }
 
-  depthFirstSearch() {
+  depthFirstSearch(): void {
     const visited: Map<T, boolean> = new Map();
     this.nodes.forEach((node) => {
       if (!visited.has(node.data)) {

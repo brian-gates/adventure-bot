@@ -2,10 +2,11 @@ import { CommandInteraction, MessageEmbed } from "discord.js";
 import { grantDivineBlessing } from "../../gameState";
 
 export const divineBlessing = async (
-  interaction: CommandInteraction
+  interaction: CommandInteraction,
+  isFollowUp = false
 ): Promise<void> => {
   grantDivineBlessing(interaction.user.id);
-  await interaction.reply({
+  await interaction[isFollowUp ? "followUp" : "reply"]({
     embeds: [
       new MessageEmbed()
         .setTitle("Divine Blessing")

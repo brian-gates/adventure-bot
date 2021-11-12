@@ -49,7 +49,8 @@ const getRandomMonster = () => {
 };
 
 export const monster = async (
-  interaction: CommandInteraction
+  interaction: CommandInteraction,
+  isFollowUp = false
 ): Promise<void> => {
   // TODO: explore do/while refactor
   let monster = getRandomMonster();
@@ -151,7 +152,7 @@ export const monster = async (
     awardXP(player.id, monster.xpValue);
     summary.addField("XP Gained", monster.xpValue.toString());
     adjustGold(player.id, monster.gold);
-    summary.addField("GP Gained", monster.gold.toString());
+    summary.addField("GP Gained", `💰 ${monster.gold.toString()}`);
     if (player.quests.slayer) {
       updateUserQuestProgess(interaction.user, "slayer", 1);
     }

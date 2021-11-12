@@ -30,7 +30,8 @@ export const command = new SlashCommandBuilder()
   .setDescription("If you have coin, game has wares.");
 
 export const execute = async (
-  interaction: CommandInteraction
+  interaction: CommandInteraction,
+  isFollowUp = false
 ): Promise<void> => {
   const shopImage = new MessageAttachment(
     "./images/weapon-shop.jpg",

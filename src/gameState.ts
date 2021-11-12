@@ -38,11 +38,15 @@ export const saveDB = async (): Promise<void> => {
 
 export const loadDB = async (): Promise<void> => {
   const data = await readFile(DB_FILE, { encoding: "utf-8" });
+  console.time("loadSerializedDB");
   loadSerializedDB(data.toString());
+  console.timeEnd("loadSerializedDB");
 };
 
 export const loadSerializedDB = (serialized: string): GameState => {
+  console.time("parse");
   const parsed = JSON.parse(serialized);
+  console.timeEnd("parse");
   const characters = parsed.characters.map(
     ([id, character]: [string, Character]) => [
       id,

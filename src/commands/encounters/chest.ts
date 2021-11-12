@@ -33,7 +33,7 @@ type Chest = {
 
 export const chest = async (
   interaction: CommandInteraction,
-  followUp = false
+  isFollowUp = false
 ): Promise<void> => {
   let fled = false;
   let timeout = false;
@@ -56,7 +56,7 @@ export const chest = async (
     trapTriggered: false,
   };
 
-  const message = await interaction[followUp ? "followUp" : "reply"]({
+  const message = await interaction[isFollowUp ? "followUp" : "reply"]({
     files: [chestImage],
     embeds: [chestEmbed(chest)],
     fetchReply: true,
