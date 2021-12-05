@@ -11,7 +11,7 @@ import { vigorShrine } from "./shrine/vigor";
 import { barFight } from "./tavern/barFight";
 import { chattyTavernkeepers } from "./tavern/chattyTavernkeepers";
 import { tavern } from "./tavern/tavern";
-import { trapInteraction } from "../trap/trap";
+import { trapInteraction } from "../trap/trapInteraction";
 import { travel } from "./travel";
 
 export {
