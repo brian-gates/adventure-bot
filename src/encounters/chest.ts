@@ -21,7 +21,9 @@ import { updateStatusEffect } from "../statusEffects/grantStatusEffect";
 import { isEquippable } from "../equipment/equipment";
 import { isHeavyCrownInPlay } from "../store/selectors";
 import store from "../store";
-import { getRandomTrap, Trap, trapAttack } from "../trap/trap";
+import { Trap } from "../trap/trap";
+import { trapAttack } from "../trap/trapAttack";
+import { randomTrap } from "../trap/randomTrap";
 
 const chestImage = new MessageAttachment("./images/chest.jpg", "chest.jpg");
 
@@ -65,7 +67,7 @@ export async function chest(
     trapDisarmed: false,
     trapDisarmAttempted: false,
     trapTriggered: false,
-    trap: getRandomTrap(),
+    trap: randomTrap(),
     ...chestConfig,
   };
 
