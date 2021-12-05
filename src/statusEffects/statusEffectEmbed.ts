@@ -25,7 +25,9 @@ export function statusEffectEmbed(
       ...fields,
       {
         name: "Expires",
-        value: moment(new Date(effect.started)).add(effect.duration).calendar(),
+        value: effect.started
+          ? moment(new Date(effect.started)).add(effect.duration).calendar()
+          : "Not started",
       },
     ],
   });

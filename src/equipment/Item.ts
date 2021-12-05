@@ -11,6 +11,7 @@ export type Item = {
     | "ring"
     | "potion"
     | "scroll"
+    | "trap"
     | "misc";
   name: string;
   description: string;

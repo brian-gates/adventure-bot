@@ -18,15 +18,16 @@ import { grantCharacterItem } from "../equipment/grantCharacterItem";
 import { randomChestItem } from "../equipment/randomChestItem";
 import { heavyCrown } from "../equipment/items/heavyCrown";
 import { updateStatusEffect } from "../statusEffects/grantStatusEffect";
-import { trapAttack } from "../trap/trapAttack";
 import { isEquippable } from "../equipment/equipment";
 import { isHeavyCrownInPlay } from "../store/selectors";
 import store from "../store";
+import { getRandomTrap, Trap, trapAttack } from "../trap/trap";
 
 const chestImage = new MessageAttachment("./images/chest.jpg", "chest.jpg");
 
 type Chest = {
   hasTrap: boolean;
+  trap: Trap;
   hasLock: boolean;
   isTrapped: boolean;
   isLocked: boolean;
@@ -64,6 +65,7 @@ export async function chest(
     trapDisarmed: false,
     trapDisarmAttempted: false,
     trapTriggered: false,
+    trap: getRandomTrap(),
     ...chestConfig,
   };
 
@@ -264,18 +266,16 @@ const chestResponses = (chest: Chest): string[] => {
   return responses;
 };
 
-function triggerTrap(interaction: CommandInteraction, chest: Chest) {
+export function triggerTrap(interaction: CommandInteraction, chest: Chest) {
   chest.trapTriggered = true;
-  const attack = trapAttack(interaction.user.id, 1);
-  if (!attack)
-    return interaction.editReply("No attack. This should not happen.");
+  const attack = trapAttack(chest.trap, interaction.user.id);
 
   if (attack.outcome === "hit") {
     const roll = Math.random();
 
     switch (true) {
       case roll <= 0.5:
-        adjustHP(interaction.user.id, -attack.damage);
+        adjustHP(interaction.user.id, -attack.damageRoll);
         updateStatusEffect(interaction.user.id, {
           name: "Poison Trap",
           debuff: true,
@@ -286,10 +286,10 @@ function triggerTrap(interaction: CommandInteraction, chest: Chest) {
           duration: 30 * 60000,
           started: new Date().toString(),
         });
-        chest.trapResult = `A needle pricks your finger. You take ${attack.damage} damage and feel ill!`;
+        chest.trapResult = `A needle pricks your finger. You take ${attack.damageRoll} damage and feel ill!`;
         break;
       case roll <= 1:
-        adjustHP(interaction.user.id, -attack.damage);
+        adjustHP(interaction.user.id, -attack.damageRoll);
         updateStatusEffect(interaction.user.id, {
           name: "Slow Trap",
           debuff: true,
@@ -300,7 +300,7 @@ function triggerTrap(interaction: CommandInteraction, chest: Chest) {
           duration: 30 * 60000,
           started: new Date().toString(),
         });
-        chest.trapResult = `A strange dust explodes in your face. You take ${attack.damage} damage and feel sluggish!`;
+        chest.trapResult = `A strange dust explodes in your face. You take ${attack.damageRoll} damage and feel sluggish!`;
         break;
     }
   }

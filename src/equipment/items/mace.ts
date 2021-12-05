@@ -4,6 +4,7 @@ import { Weapon } from "../equipment";
 export const mace = (): Weapon => ({
   id: randomUUID(),
   type: "weapon",
+  targetDefense: "ac",
   name: "mace",
   description: "A sturdy and reliable means of crushing your foes.",
   modifiers: {

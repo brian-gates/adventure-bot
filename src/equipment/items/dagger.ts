@@ -4,6 +4,7 @@ import { Weapon } from "../equipment";
 export const dagger = (): Weapon => ({
   id: randomUUID(),
   type: "weapon",
+  targetDefense: "ac",
   name: "dagger",
   description: "A small and nimble blade. Cheap and versatile.",
   damageMax: 4,

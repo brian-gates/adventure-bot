@@ -1,11 +1,16 @@
 import { getCharacterStatModified } from "../character/getCharacterStatModified";
-import { trapAttack as trapAttack } from "./trapAttack";
+import store from "../store";
+import { getCharacterById } from "../store/selectors";
+import { trapAttack } from "./trap";
 
-export const trapRollText = (result: ReturnType<typeof trapAttack>): string =>
-  result
+export const trapRollText = (result: ReturnType<typeof trapAttack>): string => {
+  const defender = getCharacterById(store.getState(), result.defenderId);
+  if (!defender) return "No target";
+  return result
     ? `${result.attackRoll}+${result.attackBonus} (${
         result.attackRoll + result.attackBonus
-      }) vs ${getCharacterStatModified(result.defender, "ac")} ac${
-        result.outcome === "hit" ? ` for ${result.damage} damage` : ""
+      }) vs ${getCharacterStatModified(defender, "ac")} ac${
+        result.outcome === "hit" ? ` for ${result.damageRoll} damage` : ""
       }.`
     : "No result";
+};

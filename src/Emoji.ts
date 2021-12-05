@@ -33,6 +33,9 @@ const defaultEmojis: {
   run: "🏃‍♀️",
   adventure: "🚶‍♀️",
   renew: "🤍",
+  body: "💪",
+  mind: "🧠",
+  spirit: "😇",
 };
 
 /**

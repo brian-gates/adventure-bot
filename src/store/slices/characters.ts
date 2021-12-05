@@ -8,7 +8,9 @@ import { equipmentFilter, LootResult } from "../../character/loot/loot";
 import { Monster } from "../../monster/Monster";
 
 export const isStatusEffectExpired = (effect: StatusEffect): boolean =>
-  Date.now() > new Date(effect.started).valueOf() + effect.duration;
+  effect.started
+    ? Date.now() > new Date(effect.started).valueOf() + effect.duration
+    : false;
 
 const charactersById: Record<string, Character> = {};
 const roamingMonsters: string[] = [];

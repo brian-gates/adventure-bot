@@ -202,7 +202,6 @@ export const attackRollText = ({
   result: AttackResult;
   interaction: CommandInteraction;
 }): string => {
-  if (!result) return "No result. This should not happen.";
   if (result.outcome === "cooldown") return "on cooldown";
   const ac = result.defender.ac;
   const acModifier = getCharacterStatModifier(result.defender, "ac");

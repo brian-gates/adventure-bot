@@ -1,9 +1,10 @@
-import { Character } from "../character/Character";
+import { Trap } from "./trap";
 
 export type TrapResult = {
   outcome: "hit" | "miss";
   attackRoll: number;
   attackBonus: number;
-  damage: number;
-  defender: Character;
-}
+  damageRoll: number;
+  defenderId: string;
+  trap: Trap;
+};

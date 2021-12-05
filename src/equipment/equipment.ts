@@ -1,3 +1,5 @@
+import { DefenseStat } from "../character/Stats";
+import { StatusEffect } from "../statusEffects/StatusEffect";
 import { Item } from "./Item";
 
 export type Equippable = Item & {
@@ -6,9 +8,17 @@ export type Equippable = Item & {
 };
 export type Tradeable = Item & { tradeable: true };
 
+type OnHitEffect = {
+  damageMax?: number;
+  targetDefense: DefenseStat;
+  statusEffect?: StatusEffect;
+};
+
 export type Weapon = Equippable & {
   type: "weapon";
   damageMax: number;
+  targetDefense: DefenseStat;
+  onHitEffects?: OnHitEffect[];
   accuracyDescriptors: {
     wideMiss: string[];
     nearMiss: string[];
