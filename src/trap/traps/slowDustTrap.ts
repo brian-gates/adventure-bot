@@ -1,5 +1,5 @@
 import { randomUUID } from "crypto";
-import { Trap } from "./trap";
+import { Trap } from "../trap";
 
 export function slowDustTrap(): Trap {
   return {
