@@ -1,5 +1,5 @@
 import { randomUUID } from "crypto";
-import { Weapon } from "../equipment";
+import { Weapon } from "../Weapon";
 
 export const mace = (): Weapon => ({
   id: randomUUID(),
@@ -13,10 +13,14 @@ export const mace = (): Weapon => ({
   damageMax: 4,
   goldValue: 40,
   accuracyDescriptors: {
-    wideMiss: ["<@attacker>'s mace swings clumbsily at <@defender>"],
-    nearMiss: ["<@attacker>'s mace nearly crushes <@defender>"],
-    onTheNose: ["<@attacker>'s mace crushes <@defender>"],
-    veryAccurate: ["<@attacker>'s mace crushes <@defender> true"],
+    missed: ["<@attacker>'s mace misses <@defender>."],
+    missedDefinitely: ["<@attacker>'s mace swings clumbsily at <@defender>"],
+    missedBarely: [
+      "<@attacker>'s mace nearly crushes <@defender>, but misses.",
+    ],
+    hitBarely: ["<@attacker>'s mace crushes <@defender>, though just barely!"],
+    hit: ["<@attacker>'s mace crushes <@defender>"],
+    hitDefinitely: ["<@attacker>'s mace crushes <@defender> true!"],
   },
   equippable: true,
   sellable: true,

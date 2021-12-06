@@ -6,6 +6,9 @@ import { getCharacterStatModified } from "../../character/getCharacterStatModifi
 import { Item } from "equipment/Item";
 import { equipmentFilter, LootResult } from "../../character/loot/loot";
 import { Monster } from "../../monster/Monster";
+import { AttackResult } from "../../attack/AttackResult";
+import { updateCharacterQuestProgess } from "../../quest/updateQuestProgess";
+import { clamp } from "remeda";
 
 export const isStatusEffectExpired = (effect: StatusEffect): boolean =>
   effect.started
@@ -49,6 +52,20 @@ const characterSlice = createSlice({
         target.equipment,
         (item) => !isTakenItem(item)
       );
+    },
+
+    characterAttacked(state, action: PayloadAction<AttackResult>) {
+      const { attackerId, defenderId, totalDamage, outcome } = action.payload;
+      const defender = state.charactersById[defenderId];
+      if (outcome === "hit")
+        // TODO: test this
+        adjustHP({
+          amount: -totalDamage,
+          characterId: defenderId,
+        });
+      if (defender.hp - totalDamage > 0) {
+        updateCharacterQuestProgess(defender, "survivor", totalDamage);
+      }
     },
 
     updateCharacterCooldowns(
@@ -144,22 +161,22 @@ const characterSlice = createSlice({
       };
     },
 
-    adjustCharacterHP(
+    adjustHP(
       state,
       action: PayloadAction<{
-        character: Character;
+        characterId: string;
         amount: number;
       }>
     ) {
-      const { character, amount } = action.payload;
-      const maxHP = getCharacterStatModified(character, "maxHP");
-      let newHp = character.hp + amount;
-      if (newHp < 0) newHp = 0;
-      if (newHp > maxHP) newHp = maxHP;
-
+      const { characterId, amount } = action.payload;
+      const character = state.charactersById[characterId];
+      if (!character) return;
       state.charactersById[character.id] = {
         ...character,
-        hp: newHp,
+        hp: clamp(character.hp + amount, {
+          max: getCharacterStatModified(character, "maxHP"),
+          min: 0,
+        }),
       };
     },
 
@@ -190,12 +207,13 @@ export const {
   addCharacterStatusEffect,
   addCharacterQuestProgress,
   grantDivineBlessing,
-  adjustCharacterHP,
+  adjustHP,
   addItemToInventory,
   questCompleted,
   goldGained,
   characterLooted,
   monsterCreated,
+  characterAttacked,
 } = characterSlice.actions;
 
 export default characterSlice.reducer;

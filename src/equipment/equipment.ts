@@ -1,6 +1,7 @@
 import { DefenseStat } from "../character/Stats";
 import { StatusEffect } from "../statusEffects/StatusEffect";
 import { Item } from "./Item";
+import { Weapon } from "./Weapon";
 
 export type Equippable = Item & {
   equippable: true;
@@ -8,31 +9,10 @@ export type Equippable = Item & {
 };
 export type Tradeable = Item & { tradeable: true };
 
-type OnHitEffect = {
+export type OnHitEffect = {
   damageMax?: number;
   targetDefense: DefenseStat;
   statusEffect?: StatusEffect;
-};
-
-export type Weapon = Equippable & {
-  type: "weapon";
-  damageMax: number;
-  targetDefense: DefenseStat;
-  onHitEffects?: OnHitEffect[];
-  accuracyDescriptors: {
-    wideMiss: string[];
-    nearMiss: string[];
-    onTheNose: string[];
-    veryAccurate: string[];
-  };
-  // TODO:
-  // damageDescriptors: {
-  //   minimum: string[];
-  //   weak: string[];
-  //   average: string[];
-  //   strong: string[];
-  //   maximum: string[];
-  // }
 };
 
 export type Armor = Equippable & {

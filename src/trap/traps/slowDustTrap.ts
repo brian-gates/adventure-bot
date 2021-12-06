@@ -9,12 +9,16 @@ export function slowDustTrap(): Trap {
       name: "Slow Dust Trap",
       type: "weapon",
       accuracyDescriptors: {
-        nearMiss: [
-          "Dust flies in your face, but you cover your mouth in time!",
+        missed: [
+          "You turn and cover your head, holding your breath until the dust clears.",
         ],
-        onTheNose: ["You try to cover your face, but dust finds its way in!"],
-        veryAccurate: ["Dust enshrouds your face!"],
-        wideMiss: ["You're well prepared for the dust trap."],
+        hitDefinitely: ["Dust engulfs your face!"],
+        hit: ["You cough as the dust settles in your lungs."],
+        hitBarely: ["You try to cover your face, but dust finds its way in!"],
+        missedBarely: [
+          "Dust flies in your face, but you cover your mouth just in time!",
+        ],
+        missedDefinitely: ["You're well prepared for the dust trap."],
       },
       onHitEffects: [
         {

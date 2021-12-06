@@ -1,17 +1,14 @@
-import { attack } from "./attack";
-import { isCharacterOnCooldown } from "../character/isCharacterOnCooldown";
-import { AttackResult } from "./AttackResult";
-import { setCharacterCooldown } from "../character/setCharacterCooldown";
+import { characterAttack } from "./characterAttack";
+import { isCharacterOnCooldown, setCharacterCooldown } from "../character";
 
 export const playerAttack = (
   attackerId: string,
   defenderId: string
-): AttackResult | void => {
+): ReturnType<typeof characterAttack> | { outcome: "cooldown" } => {
   if (isCharacterOnCooldown(attackerId, "attack")) {
     return { outcome: "cooldown" };
   }
-  const result = attack(attackerId, defenderId);
-  if (result && result.outcome !== "cooldown")
-    setCharacterCooldown(attackerId, "attack");
+  const result = characterAttack(attackerId, defenderId);
+  if (result) setCharacterCooldown(attackerId, "attack");
   return result;
 };

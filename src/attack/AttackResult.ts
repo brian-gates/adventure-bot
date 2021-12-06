@@ -1,22 +1,21 @@
-import { Character } from "../character/Character";
+import { DefenseStat } from "../character/Stats";
 
-type AttackHit = {
+type Attack = {
+  attackerId: string;
+  defenderId: string;
+  attackRoll: number;
+  attackBonus: number;
+  defense: number;
+  targetDefense: DefenseStat;
+  totalDamage: number;
+  monsterDamageRoll: number;
+  damageRoll: number;
+};
+
+type AttackHit = Attack & {
   outcome: "hit";
-  attacker: Character;
-  defender: Character;
-  attackRoll: number;
-  damage: number;
-  monsterDamageRoll: number;
-  damageRoll: number;
 };
-type AttackMiss = {
+type AttackMiss = Attack & {
   outcome: "miss";
-  attacker: Character;
-  defender: Character;
-  attackRoll: number;
-  damage: number;
-  monsterDamageRoll: number;
-  damageRoll: number;
 };
-type AttackCooldown = { outcome: "cooldown" };
-export type AttackResult = AttackHit | AttackMiss | AttackCooldown;
+export type AttackResult = AttackHit | AttackMiss;

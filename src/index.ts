@@ -71,7 +71,7 @@ async function main() {
     } catch (e) {
       console.error(e);
       await interaction.followUp(
-        `Command \`${interaction.commandName}\` failed with error: \`${e}\``
+        `Command failure: \`${interaction.commandName}\` failed with error: \`${e}\``
       );
     }
     console.timeEnd(interaction.commandName);

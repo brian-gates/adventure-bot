@@ -1,18 +1,13 @@
 import { SlashCommandBuilder } from "@discordjs/builders";
-import { CommandInteraction, MessageEmbed } from "discord.js";
+import { CommandInteraction, MessageEmbed, User } from "discord.js";
 import { getUserCharacter } from "../character/getUserCharacter";
-import { getCharacterStatModifier } from "../character/getCharacterStatModifier";
-import { getCharacterStatModified } from "../character/getCharacterStatModified";
 import { playerAttack } from "../attack/playerAttack";
 import { sleep } from "../utils";
 import { cooldownRemainingText } from "../character/cooldownRemainingText";
-import { mentionCharacter } from "../character/mentionCharacter";
-import { attack } from "../attack/attack";
-import { hpBarField } from "../character/hpBar/hpBarField";
+import { characterAttack } from "../attack/characterAttack";
 import { loot } from "../character/loot/loot";
 import { lootResultEmbed } from "../character/loot/lootResultEmbed";
-import { AttackResult } from "../attack/AttackResult";
-import { Emoji } from "../Emoji";
+import { attackResultEmbed } from "../attack/attackResultEmbed";
 
 export const command = new SlashCommandBuilder()
   .setName("attack")
@@ -24,15 +19,14 @@ export const command = new SlashCommandBuilder()
 export const execute = async (
   interaction: CommandInteraction
 ): Promise<void> => {
-  const target = interaction.options.data[0].user;
-  const initiator = interaction.user;
-  if (!target) {
+  const defendingUser = interaction.options.data[0].user;
+  const attackingUser = interaction.user;
+  if (!defendingUser) {
     await interaction.editReply(`You must specify a target @player`);
     return;
   }
-
-  const attacker = getUserCharacter(initiator);
-  const defender = getUserCharacter(target);
+  const attacker = getUserCharacter(attackingUser);
+  const defender = getUserCharacter(defendingUser);
   let lootResult;
   if (attacker.hp === 0) {
     await interaction.editReply({
@@ -49,7 +43,6 @@ export const execute = async (
     await interaction.editReply(`No attack result. This should not happen.`);
     return;
   }
-
   if (result.outcome === "cooldown") {
     await interaction.editReply(
       `You can attack again ${cooldownRemainingText(
@@ -59,6 +52,10 @@ export const execute = async (
     );
     return;
   }
+  if (result.outcome === "targetNotFound") {
+    await interaction.editReply(`Target not found.`);
+    return;
+  }
   const embeds = [];
   const hitsOrMisses = result.outcome === "hit" ? "hits" : "misses";
   embeds.push(
@@ -66,7 +63,7 @@ export const execute = async (
       `${attacker.name} ${hitsOrMisses} ${defender.name}!`
     )
   );
-  if (result.defender.hp === 0) {
+  if (getUserHp(defendingUser) === 0) {
     lootResult = loot({ looterId: attacker.id, targetId: defender.id });
     if (lootResult) embeds.push(lootResultEmbed(lootResult));
   }
@@ -75,13 +72,10 @@ export const execute = async (
   });
   await sleep(2000);
   const retaliationEmbeds: MessageEmbed[] = [];
-  if (result.defender.hp > 0) {
-    const result = attack(defender.id, attacker.id);
-    if (!result || result.outcome === "cooldown") {
-      // TODO: cooldown shouldn't be a possible outcome here
-      await interaction.editReply({
-        content: `No attack result or retaliation outcome is cooldown. This should not happen.`,
-      });
+  if (getUserHp(defendingUser) > 0) {
+    const result = characterAttack(defender.id, attacker.id);
+    if (result.outcome === "targetNotFound") {
+      await interaction.editReply(`Target not found.`);
       return;
     }
     const hitsOrMisses = result.outcome === "hit" ? "hits" : "misses";
@@ -90,171 +84,18 @@ export const execute = async (
         `${defender.name}'s retaliation against ${attacker.name} ${hitsOrMisses}!`
       )
     );
-    if (result.defender.hp === 0) {
+    if (getUserHp(defendingUser) === 0) {
       lootResult = loot({ looterId: defender.id, targetId: attacker.id });
       if (lootResult) retaliationEmbeds.push(lootResultEmbed(lootResult));
     }
-
     await interaction.followUp({
       embeds: retaliationEmbeds,
     });
   }
 };
 
-export default { command, execute };
-
-const accuracyDescriptor = (result: ReturnType<typeof playerAttack>) => {
-  if (!result) return `No result`;
-  if (result.outcome === "cooldown") return "On cooldown";
-  const accuracy =
-    result.attackRoll +
-    getCharacterStatModified(result.attacker, "attackBonus") -
-    getCharacterStatModified(result.defender, "ac");
-  const attacker = mentionCharacter(result.attacker);
-  const defender = mentionCharacter(result.defender);
-  switch (true) {
-    case accuracy >= 5:
-      return (
-        result.attacker.equipment.weapon?.accuracyDescriptors.veryAccurate[0]
-          .replace(/<@attacker>/g, attacker)
-          .replace(/<@defender>/g, defender) ??
-        `${attacker} strikes ${defender} true`
-      );
-    case accuracy >= 2:
-      return (
-        result.attacker.equipment.weapon?.accuracyDescriptors.onTheNose[0]
-          .replace(/<@attacker>/g, attacker)
-          .replace(/<@defender>/g, defender) ??
-        `${attacker} finds purchase against ${defender}`
-      );
-    case accuracy >= 1:
-      return (
-        result.attacker.equipment.weapon?.accuracyDescriptors.onTheNose[0]
-          .replace(/<@attacker>/g, attacker)
-          .replace(/<@defender>/g, defender) ??
-        `${attacker} narrowly hits ${defender}`
-      );
-    case accuracy === 0:
-      return (
-        result.attacker.equipment.weapon?.accuracyDescriptors.onTheNose[0]
-          .replace(/<@attacker>/g, attacker)
-          .replace(/<@defender>/g, defender) ??
-        `${attacker} barely hits ${defender}`
-      );
-    case accuracy <= 1:
-      return (
-        result.attacker.equipment.weapon?.accuracyDescriptors.nearMiss[0]
-          .replace(/<@attacker>/g, attacker)
-          .replace(/<@defender>/g, defender) ??
-        `${attacker} narrowly misses ${defender}`
-      );
-    case accuracy <= 2:
-      return (
-        result.attacker.equipment.weapon?.accuracyDescriptors.nearMiss[0]
-          .replace(/<@attacker>/g, attacker)
-          .replace(/<@defender>/g, defender) ?? `${attacker} misses ${defender}`
-      );
-    case accuracy < 5:
-      return (
-        result.attacker.equipment.weapon?.accuracyDescriptors.wideMiss[0]
-          .replace(/<@attacker>/g, attacker)
-          .replace(/<@defender>/g, defender) ??
-        `${attacker} misses ${defender} utterly`
-      );
-  }
-};
-
-const damageDescriptor = (result: ReturnType<typeof playerAttack>) => {
-  if (!result) return `No result`;
-  if (result.outcome === "cooldown") return "";
-  const damage = result.damage;
-  switch (true) {
-    case damage > 5:
-      return "with a devastating blow!";
-    case damage > 2:
-      return "with a solid strike.";
-    default:
-      return "with a weak hit.";
-  }
-};
-
-export const attackFlavorText = (
-  result: ReturnType<typeof playerAttack>
-): string =>
-  result
-    ? `${accuracyDescriptor(result)} ${damageDescriptor(result)}`
-    : "No result";
-
-export const hpText = (result: ReturnType<typeof playerAttack>): string =>
-  result
-    ? result.outcome === "cooldown"
-      ? "on cooldown"
-      : `${result.defender.hp}/${getCharacterStatModified(
-          result.defender,
-          "maxHP"
-        )} ${result.defender.hp <= 0 ? "(unconscious)" : ""}`
-    : "No result";
-
-export const attackRollText = ({
-  result,
-  interaction,
-}: {
-  result: AttackResult;
-  interaction: CommandInteraction;
-}): string => {
-  if (result.outcome === "cooldown") return "on cooldown";
-  const ac = result.defender.ac;
-  const acModifier = getCharacterStatModifier(result.defender, "ac");
-  const roll = result.attackRoll;
-  const attackBonus = getCharacterStatModified(result.attacker, "attackBonus");
-  const totalAttack = roll + attackBonus;
-
-  const acModifierText =
-    acModifier > 0 ? `+${acModifier}` : acModifier < 0 ? `-${acModifier}` : ``;
-
-  const comparison = result.outcome === "hit" ? "≥" : "<";
-  const outcomeText =
-    result.outcome === "hit"
-      ? Emoji(interaction, "hit") + " Hit!"
-      : Emoji(interaction, "miss") + " Miss.";
-
-  return `${outcomeText}\n${Emoji(
-    interaction,
-    "attack"
-  )}${totalAttack} ${comparison} ${Emoji(interaction, "ac")}${
-    10 + acModifier
-  } (\`${roll}\`+${attackBonus} vs ${ac}${acModifierText})`;
-};
-
-function attackResultEmbed({
-  result,
-  interaction,
-}: {
-  result: AttackResult;
-  interaction: CommandInteraction;
-}): MessageEmbed {
-  const embed = new MessageEmbed().setDescription(attackFlavorText(result));
-  if (!result || result.outcome === "cooldown") return embed;
-
-  switch (result.outcome) {
-    case "hit":
-      embed.setImage("https://i.imgur.com/rM6yWps.png");
-      break;
-    case "miss":
-    default:
-      embed.setImage(
-        "https://i.pinimg.com/564x/10/5e/9e/105e9ea5f0d2e86bde9e7a365289a9cc.jpg"
-      );
-      break;
-  }
-
-  embed.addFields([
-    hpBarField(result.defender, result.outcome === "hit" ? -result.damage : 0),
-    {
-      name: `Attack`,
-      value: attackRollText({ result, interaction }),
-    },
-  ]);
-
-  return embed;
+function getUserHp(user: User): number {
+  return getUserCharacter(user).hp;
 }
+
+export default { command, execute };

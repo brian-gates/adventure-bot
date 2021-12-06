@@ -1,5 +1,5 @@
 import { randomUUID } from "crypto";
-import { Weapon } from "../equipment";
+import { Weapon } from "../Weapon";
 
 export const longsword = (): Weapon => ({
   id: randomUUID(),
@@ -10,10 +10,14 @@ export const longsword = (): Weapon => ({
   damageMax: 8,
   goldValue: 40,
   accuracyDescriptors: {
-    wideMiss: ["<@attacker>'s longsword swings wide at <@defender>"],
-    nearMiss: ["<@attacker>'s longsword nearly slashes <@defender>"],
-    onTheNose: ["<@attacker>'s longsword slashes <@defender>"],
-    veryAccurate: ["<@attacker>'s longsword cuts <@defender> true"],
+    missedDefinitely: ["<@attacker>'s longsword swings wide at <@defender>"],
+    missedBarely: [
+      "<@attacker>'s longsword nearly slashes <@defender>, but misses",
+    ],
+    missed: ["<@attacker>'s longsword misses <@defender>"],
+    hitBarely: ["<@attacker>'s longsword barely catches <@defender>"],
+    hit: ["<@attacker>'s longsword hits <@defender>"],
+    hitDefinitely: ["<@attacker>'s longsword cuts <@defender> true!"],
   },
   equippable: true,
   sellable: true,

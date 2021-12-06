@@ -1,4 +1,4 @@
-import { Weapon } from "../equipment/equipment";
+import { Weapon } from "../equipment/Weapon";
 
 export type Trap = {
   weapon: Weapon;

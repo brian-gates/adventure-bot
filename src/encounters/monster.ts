@@ -1,5 +1,5 @@
 import { CommandInteraction, Message } from "discord.js";
-import { attack } from "../attack/attack";
+import { characterAttack } from "../attack/characterAttack";
 import { chest } from "./chest";
 import { isUserQuestComplete } from "../quest/isQuestComplete";
 import quests from "../commands/quests";
@@ -10,14 +10,14 @@ import { getRandomMonster } from "../monster/getRandomMonster";
 import { createEncounter } from "../encounter/createEncounter";
 import { Monster } from "../monster/Monster";
 import { encounterInProgressEmbed } from "./utils/encounterInProgressEmbed";
-import { adjustHP } from "../character/adjustHP";
 import { loot } from "../character/loot/loot";
 import { lootResultEmbed } from "../character/loot/lootResultEmbed";
 import store from "../store";
 import { addMonsterAttack, addPlayerAttack } from "../store/slices/encounters";
 import { Emoji } from "../Emoji";
-import { attackResultEmbed } from "../encounter/attackResultEmbed";
 import { encounterSummaryEmbed } from "../encounter/encounterSummaryEmbed";
+import { adjustHP } from "../character/adjustHP";
+import { attackResultEmbed } from "../attack/attackResultEmbed";
 
 export const monster = async (
   interaction: CommandInteraction
@@ -66,8 +66,20 @@ export const monster = async (
     const playerResult =
       encounter.outcome == "player fled"
         ? undefined
-        : attack(player.id, monster.id);
-    const monsterResult = attack(monster.id, player.id);
+        : characterAttack(player.id, monster.id);
+    const monsterResult = characterAttack(monster.id, player.id);
+
+    if (playerResult && playerResult.outcome === "targetNotFound") {
+      console.error("target not found", playerResult);
+      interaction.followUp(`${player.name} has gone missing`);
+      return;
+    }
+    if (monsterResult.outcome === "targetNotFound") {
+      console.error("target not found", monsterResult);
+      interaction.followUp(`${monster.name} has gone missing`);
+      return;
+    }
+
     playerResult &&
       store.dispatch(addPlayerAttack({ encounter, result: playerResult }));
     monsterResult &&

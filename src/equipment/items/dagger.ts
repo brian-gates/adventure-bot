@@ -1,5 +1,5 @@
 import { randomUUID } from "crypto";
-import { Weapon } from "../equipment";
+import { Weapon } from "../Weapon";
 
 export const dagger = (): Weapon => ({
   id: randomUUID(),
@@ -13,12 +13,12 @@ export const dagger = (): Weapon => ({
   },
   goldValue: 20,
   accuracyDescriptors: {
-    wideMiss: [
-      "<@attacker>'s dagger slashes in the approximate direction of <@defender>",
-    ],
-    nearMiss: ["<@attacker>'d dagger nearly stabs <@defender>"],
-    onTheNose: ["<@attacker>'s dagger pierces <@defender>"],
-    veryAccurate: ["<@attacker>'s dagger pierces <@defender> true"],
+    missedDefinitely: ["<@attacker>'s dagger swings wide of <@defender>"],
+    missed: ["<@attacker>'d dagger misses <@defender>"],
+    missedBarely: ["<@attacker>'d dagger just barely misses <@defender>"],
+    hitBarely: ["<@attacker>'s dagger just barely slices <@defender>"],
+    hit: ["<@attacker>'s dagger stabs <@defender>"],
+    hitDefinitely: ["<@attacker>'s dagger pierces <@defender> true"],
   },
   equippable: true,
   sellable: true,

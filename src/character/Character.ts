@@ -1,4 +1,5 @@
-import { Armor, Hat, Shield, Weapon } from "../equipment/equipment";
+import { Armor, Hat, Shield } from "../equipment/equipment";
+import { Weapon } from "../equipment/Weapon";
 import { Item } from "../equipment/Item";
 import { Quest } from "../quest/Quest";
 import { QuestId } from "../quest/quests";

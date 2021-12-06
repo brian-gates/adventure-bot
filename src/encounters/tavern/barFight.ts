@@ -1,5 +1,4 @@
 import { CommandInteraction, MessageEmbed } from "discord.js";
-import { adjustHP } from "../../character/adjustHP";
 import { awardXP } from "../../character/awardXP";
 import { d6 } from "../../utils/dice";
 import { getUserCharacter } from "../../character/getUserCharacter";
@@ -8,6 +7,7 @@ import { updateUserQuestProgess } from "../../quest/updateQuestProgess";
 import { hpBarField } from "../../character/hpBar/hpBarField";
 import { xpGainField } from "../../character/xpGainField";
 import { damgeTakenField } from "../../character/damgeTakenField";
+import { adjustHP } from "../../character/adjustHP";
 
 export async function barFight(
   interaction: CommandInteraction,

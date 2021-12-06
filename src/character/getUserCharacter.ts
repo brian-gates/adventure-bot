@@ -8,7 +8,7 @@ import store from "../store";
 import { getCharacterById } from "../store/selectors";
 
 export const getUserCharacter = (user: User): Character => {
-  purgeExpiredStatuses(user.id);
+  purgeExpiredStatuses(user.id); // TODO: debounce this
   const character = getCharacterById(store.getState(), user.id);
   if (!character) {
     return createCharacter({

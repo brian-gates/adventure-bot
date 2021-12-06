@@ -5,7 +5,6 @@ import {
   MessageEmbed,
 } from "discord.js";
 import { adjustGold } from "../character/adjustGold";
-import { adjustHP } from "../character/adjustHP";
 import { awardXP } from "../character/awardXP";
 import { getUserCharacter } from "../character/getUserCharacter";
 import { gpGainField } from "../character/gpGainField";
@@ -24,6 +23,7 @@ import store from "../store";
 import { Trap } from "../trap/trap";
 import { trapAttack } from "../trap/trapAttack";
 import { randomTrap } from "../trap/randomTrap";
+import { adjustHP } from "../character/adjustHP";
 
 const chestImage = new MessageAttachment("./images/chest.jpg", "chest.jpg");
 
@@ -268,7 +268,10 @@ const chestResponses = (chest: Chest): string[] => {
   return responses;
 };
 
-export function triggerTrap(interaction: CommandInteraction, chest: Chest) {
+export function triggerTrap(
+  interaction: CommandInteraction,
+  chest: Chest
+): void {
   chest.trapTriggered = true;
   const attack = trapAttack(chest.trap, interaction.user.id);
 

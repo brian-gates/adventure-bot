@@ -9,10 +9,12 @@ export function poisonDartTrap(): Trap {
       name: "Poison Dart Trap",
       type: "weapon",
       accuracyDescriptors: {
-        nearMiss: ["Darts fly by your head"],
-        onTheNose: ["A dart strikes you!"],
-        veryAccurate: ["You are caught off guard as darts find their mark!"],
-        wideMiss: ["You anticipate the dart trap and easily avoid it."],
+        hit: ["Poisonous darts strike you!"],
+        missed: ["Some darts fly past you as you dodge out of the way."],
+        missedBarely: ["You feel darts graze you, but none pierce flesh."],
+        hitBarely: ["A dart strikes you!"],
+        hitDefinitely: ["You are caught off guard and are pelted with darts!"],
+        missedDefinitely: ["You anticipate the dart trap and easily avoid it!"],
       },
       onHitEffects: [
         {
