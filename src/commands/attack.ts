@@ -29,12 +29,12 @@ export const execute = async (
   }
   const attacker = getUserCharacter(attackingUser);
   const defender = getUserCharacter(defendingUser);
-  if (attacker.hp === 0) {
+  if (getHP(attackingUser) === 0) {
     await interaction.editReply({
       embeds: [
-        new MessageEmbed()
-          .setDescription(`You're too weak to press on.`)
-          .setImage("https://imgur.com/uD06Okr.png"),
+        new MessageEmbed({
+          description: `You're too weak to press on.`,
+        }).setImage("https://imgur.com/uD06Okr.png"),
       ],
     });
     return;
@@ -56,14 +56,15 @@ export const execute = async (
     await interaction.editReply(`Target not found.`);
     return;
   }
-  const embeds = [
-    attackResultEmbed({ result: attackResult, interaction }).setTitle(
-      `${attacker.name} attacks ${defender.name}!`
-    ),
-  ];
-  if (lootResult) embeds.push(lootResultEmbed(lootResult));
+
   await interaction.editReply({
-    embeds,
+    embeds: attackEmbeds({
+      interaction,
+      attacker,
+      attackResult,
+      defender,
+      lootResult,
+    }),
   });
   await sleep(2000);
   if (getHP(defendingUser) > 0) {
@@ -75,7 +76,6 @@ export const execute = async (
       await interaction.editReply(`Target not found.`);
       return;
     }
-
     await interaction.followUp({
       embeds: retaliationEmbeds({
         result,
@@ -87,6 +87,28 @@ export const execute = async (
     });
   }
 };
+
+function attackEmbeds({
+  attackResult,
+  interaction,
+  attacker,
+  defender,
+  lootResult,
+}: {
+  attackResult: AttackResult;
+  interaction: CommandInteraction;
+  attacker: Character;
+  defender: Character;
+  lootResult: void | LootResult;
+}) {
+  const embeds = [
+    attackResultEmbed({ result: attackResult, interaction }).setTitle(
+      `${attacker.name} attacks ${defender.name}!`
+    ),
+  ];
+  if (lootResult) embeds.push(lootResultEmbed(lootResult));
+  return embeds;
+}
 
 function retaliationEmbeds({
   result,
@@ -101,13 +123,13 @@ function retaliationEmbeds({
   attacker: Character;
   lootResult: void | LootResult;
 }) {
-  const retaliationEmbeds = [
+  const embeds = [
     attackResultEmbed({ result, interaction }).setTitle(
       `${defender.name} retaliates against ${attacker.name}!`
     ),
   ];
-  if (lootResult) retaliationEmbeds.push(lootResultEmbed(lootResult));
-  return retaliationEmbeds;
+  if (lootResult) embeds.push(lootResultEmbed(lootResult));
+  return embeds;
 }
 
 function isKnockedOut(user: User) {
