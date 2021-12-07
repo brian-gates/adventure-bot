@@ -6,6 +6,7 @@ import { getCharacter } from "./getCharacter";
 import { getCharacterStatModified } from "./getCharacterStatModified";
 import { getCharacterStatModifier } from "./getCharacterStatModifier";
 import { getUserCharacter } from "./getUserCharacter";
+import { gpGainField } from "./gpGainField";
 import { hpBarField } from "./hpBar/hpBarField";
 import { isCharacterOnCooldown } from "./isCharacterOnCooldown";
 import { setCharacterCooldown } from "./setCharacterCooldown";
@@ -20,6 +21,7 @@ export {
   getCharacterStatModified,
   getCharacterStatModifier,
   getUserCharacter,
+  gpGainField,
   hpBarField,
   isCharacterOnCooldown,
   setCharacterCooldown,

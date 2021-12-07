@@ -1,8 +1,16 @@
-import { TrapResult } from "./TrapResult";
 import { d20 } from "../utils/dice";
 import { getCharacterById } from "../store/selectors";
 import store from "../store";
 import { Trap } from "./trap";
+
+export type TrapResult = {
+  outcome: "hit" | "miss";
+  attackRoll: number;
+  attackBonus: number;
+  damageRoll: number;
+  defenderId: string;
+  trap: Trap;
+};
 
 export const trapAttack = (trap: Trap, targetId: string): TrapResult => {
   const character = getCharacterById(store.getState(), targetId);

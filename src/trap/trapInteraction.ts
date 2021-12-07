@@ -7,9 +7,8 @@ import { trapResultText } from "./trapRollText";
 import { xpGainField } from "../character/xpGainField";
 import { hpBarField } from "../character/hpBar/hpBarField";
 import { randomTrap } from "./randomTrap";
-import { trapAttack } from "./trapAttack";
+import { trapAttack, TrapResult } from "./trapAttack";
 import { Character } from "../character/Character";
-import { TrapResult } from "./TrapResult";
 
 export const trapInteraction = async (
   interaction: CommandInteraction

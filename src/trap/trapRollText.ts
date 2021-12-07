@@ -1,7 +1,7 @@
 import { getCharacterStatModified } from "../character/getCharacterStatModified";
 import store from "../store";
 import { getCharacterById } from "../store/selectors";
-import { TrapResult } from "./TrapResult";
+import { TrapResult } from "./trapAttack";
 
 export const trapResultText = (result: TrapResult): string => {
   const defender = getCharacterById(store.getState(), result.defenderId);

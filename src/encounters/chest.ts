@@ -4,18 +4,6 @@ import {
   MessageAttachment,
   MessageEmbed,
 } from "discord.js";
-import { adjustGold } from "../character/adjustGold";
-import { awardXP } from "../character/awardXP";
-import { getUserCharacter } from "../character/getUserCharacter";
-import { gpGainField } from "../character/gpGainField";
-import { updateCharacter } from "../character/updateCharacter";
-import { xpGainField } from "../character/xpGainField";
-import { Emoji } from "../Emoji";
-import { equipItemPrompt } from "../equipment/equipItemPrompt";
-import { itemEmbed } from "../equipment/itemEmbed";
-import { grantCharacterItem } from "../equipment/grantCharacterItem";
-import { randomChestItem } from "../equipment/randomChestItem";
-import { heavyCrown } from "../equipment/items/heavyCrown";
 import { updateStatusEffect } from "../statusEffects/grantStatusEffect";
 import { isEquippable } from "../equipment/equipment";
 import { isHeavyCrownInPlay } from "../store/selectors";
@@ -24,6 +12,20 @@ import { Trap } from "../trap/trap";
 import { trapAttack } from "../trap/trapAttack";
 import { randomTrap } from "../trap/randomTrap";
 import { adjustHP } from "../character/adjustHP";
+import {
+  getUserCharacter,
+  awardXP,
+  adjustGold,
+  xpGainField,
+  gpGainField,
+} from "../character";
+import { updateCharacter } from "../character/updateCharacter";
+import { equipItemPrompt } from "../equipment/equipItemPrompt";
+import { grantCharacterItem } from "../equipment/grantCharacterItem";
+import { itemEmbed } from "../equipment/itemEmbed";
+import { heavyCrown } from "../equipment/items";
+import { randomChestItem } from "../equipment/randomChestItem";
+import { Emoji } from "../Emoji";
 
 const chestImage = new MessageAttachment("./images/chest.jpg", "chest.jpg");
 
