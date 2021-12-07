@@ -5,9 +5,11 @@ import { playerAttack } from "../attack/playerAttack";
 import { sleep } from "../utils";
 import { cooldownRemainingText } from "../character/cooldownRemainingText";
 import { characterAttack } from "../attack/characterAttack";
-import { loot } from "../character/loot/loot";
+import { loot, LootResult } from "../character/loot/loot";
 import { lootResultEmbed } from "../character/loot/lootResultEmbed";
 import { attackResultEmbed } from "../attack/attackResultEmbed";
+import { Character } from "../character/Character";
+import { AttackResult } from "../attack/AttackResult";
 
 export const command = new SlashCommandBuilder()
   .setName("attack")
@@ -27,7 +29,6 @@ export const execute = async (
   }
   const attacker = getUserCharacter(attackingUser);
   const defender = getUserCharacter(defendingUser);
-  let lootResult;
   if (attacker.hp === 0) {
     await interaction.editReply({
       embeds: [
@@ -38,12 +39,11 @@ export const execute = async (
     });
     return;
   }
-  const result = playerAttack(attacker.id, defender.id);
-  if (!result) {
-    await interaction.editReply(`No attack result. This should not happen.`);
-    return;
-  }
-  if (result.outcome === "cooldown") {
+  const attackResult = playerAttack(attacker.id, defender.id);
+  const lootResult = isKnockedOut(defendingUser)
+    ? loot({ looterId: attacker.id, targetId: defender.id })
+    : undefined;
+  if (attackResult.outcome === "cooldown") {
     await interaction.editReply(
       `You can attack again ${cooldownRemainingText(
         interaction.user.id,
@@ -52,49 +52,69 @@ export const execute = async (
     );
     return;
   }
-  if (result.outcome === "targetNotFound") {
+  if (attackResult.outcome === "targetNotFound") {
     await interaction.editReply(`Target not found.`);
     return;
   }
-  const embeds = [];
-  const hitsOrMisses = result.outcome === "hit" ? "hits" : "misses";
-  embeds.push(
-    attackResultEmbed({ result, interaction }).setTitle(
-      `${attacker.name} ${hitsOrMisses} ${defender.name}!`
-    )
-  );
-  if (getUserHp(defendingUser) === 0) {
-    lootResult = loot({ looterId: attacker.id, targetId: defender.id });
-    if (lootResult) embeds.push(lootResultEmbed(lootResult));
-  }
+  const embeds = [
+    attackResultEmbed({ result: attackResult, interaction }).setTitle(
+      `${attacker.name} attacks ${defender.name}!`
+    ),
+  ];
+  if (lootResult) embeds.push(lootResultEmbed(lootResult));
   await interaction.editReply({
     embeds,
   });
   await sleep(2000);
-  const retaliationEmbeds: MessageEmbed[] = [];
-  if (getUserHp(defendingUser) > 0) {
+  if (getHP(defendingUser) > 0) {
     const result = characterAttack(defender.id, attacker.id);
+    const lootResult = isKnockedOut(attackingUser)
+      ? loot({ looterId: defender.id, targetId: attacker.id })
+      : undefined;
     if (result.outcome === "targetNotFound") {
       await interaction.editReply(`Target not found.`);
       return;
     }
-    const hitsOrMisses = result.outcome === "hit" ? "hits" : "misses";
-    retaliationEmbeds.push(
-      attackResultEmbed({ result, interaction }).setTitle(
-        `${defender.name}'s retaliation against ${attacker.name} ${hitsOrMisses}!`
-      )
-    );
-    if (getUserHp(defendingUser) === 0) {
-      lootResult = loot({ looterId: defender.id, targetId: attacker.id });
-      if (lootResult) retaliationEmbeds.push(lootResultEmbed(lootResult));
-    }
+
     await interaction.followUp({
-      embeds: retaliationEmbeds,
+      embeds: retaliationEmbeds({
+        result,
+        interaction,
+        defender,
+        attacker,
+        lootResult,
+      }),
     });
   }
 };
 
-function getUserHp(user: User): number {
+function retaliationEmbeds({
+  result,
+  interaction,
+  defender,
+  attacker,
+  lootResult,
+}: {
+  result: AttackResult;
+  interaction: CommandInteraction;
+  defender: Character;
+  attacker: Character;
+  lootResult: void | LootResult;
+}) {
+  const retaliationEmbeds = [
+    attackResultEmbed({ result, interaction }).setTitle(
+      `${defender.name} retaliates against ${attacker.name}!`
+    ),
+  ];
+  if (lootResult) retaliationEmbeds.push(lootResultEmbed(lootResult));
+  return retaliationEmbeds;
+}
+
+function isKnockedOut(user: User) {
+  return getHP(user) === 0;
+}
+
+function getHP(user: User): number {
   return getUserCharacter(user).hp;
 }
 
