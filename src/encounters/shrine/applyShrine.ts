@@ -4,8 +4,8 @@ import { isUserQuestComplete } from "../../quest/isQuestComplete";
 import { updateUserQuestProgess } from "../../quest/updateQuestProgess";
 import {
   hasStatusEffect,
-  updateStatusEffect,
-} from "../../statusEffects/grantStatusEffect";
+  addStatusEffect,
+} from "../../statusEffects/addStatusEffect";
 import quests from "../../commands/quests";
 import { Shrine } from "../../shrines/Shrine";
 
@@ -20,7 +20,7 @@ export async function applyShrine({
   if (hasStatusEffect(getUserCharacter(interaction.user), "Blessed")) {
     effect.duration *= 2;
   }
-  updateStatusEffect(interaction.user.id, effect);
+  addStatusEffect(interaction.user.id, effect);
   updateUserQuestProgess(interaction.user, "blessed", 1);
   if (isUserQuestComplete(interaction.user, "blessed"))
     await quests.execute(interaction);

@@ -4,7 +4,7 @@ import {
   MessageAttachment,
   MessageEmbed,
 } from "discord.js";
-import { updateStatusEffect } from "../statusEffects/grantStatusEffect";
+import { addStatusEffect } from "../statusEffects/addStatusEffect";
 import { isEquippable } from "../equipment/equipment";
 import { isHeavyCrownInPlay } from "../store/selectors";
 import store from "../store";
@@ -275,6 +275,7 @@ export function triggerTrap(
   chest: Chest
 ): void {
   chest.trapTriggered = true;
+  // TODO: Weapon on-hit status effects
   const attack = trapAttack(chest.trap, interaction.user.id);
 
   if (attack.outcome === "hit") {
@@ -283,7 +284,7 @@ export function triggerTrap(
     switch (true) {
       case roll <= 0.5:
         adjustHP(interaction.user.id, -attack.damageRoll);
-        updateStatusEffect(interaction.user.id, {
+        addStatusEffect(interaction.user.id, {
           name: "Poison Trap",
           debuff: true,
           buff: false,
@@ -297,7 +298,7 @@ export function triggerTrap(
         break;
       case roll <= 1:
         adjustHP(interaction.user.id, -attack.damageRoll);
-        updateStatusEffect(interaction.user.id, {
+        addStatusEffect(interaction.user.id, {
           name: "Slow Trap",
           debuff: true,
           buff: false,

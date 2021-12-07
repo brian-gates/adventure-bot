@@ -1,6 +1,6 @@
 import { CommandInteraction, MessageEmbed } from "discord.js";
 import { d6 } from "../../utils/dice";
-import { updateStatusEffect } from "../../statusEffects/grantStatusEffect";
+import { addStatusEffect } from "../../statusEffects/addStatusEffect";
 import { StatusEffect } from "../../statusEffects/StatusEffect";
 import { statusEffectEmbed } from "../../statusEffects/statusEffectEmbed";
 import { updateUserQuestProgess } from "../../quest/updateQuestProgess";
@@ -40,7 +40,7 @@ export async function restfulNight(
     },
   };
 
-  updateStatusEffect(character.id, buff);
+  addStatusEffect(character.id, buff);
 
   updateUserQuestProgess(interaction.user, "healer", actualHeal);
 

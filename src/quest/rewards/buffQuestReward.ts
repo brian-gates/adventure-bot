@@ -1,7 +1,7 @@
 import { CommandInteraction, MessageEmbed } from "discord.js";
 import inspect from "../../commands/inspect/inspect";
 import { getUserCharacter } from "../../character/getUserCharacter";
-import { updateStatusEffect } from "../../statusEffects/grantStatusEffect";
+import { addStatusEffect } from "../../statusEffects/addStatusEffect";
 import { StatusEffect } from "../../statusEffects/StatusEffect";
 import { Quest } from "../Quest";
 import { questCompleted } from "../../store/slices/characters";
@@ -20,7 +20,7 @@ export async function buffQuestReward(
     }),
   ];
 
-  updateStatusEffect(character.id, effect);
+  addStatusEffect(character.id, effect);
   store.dispatch(
     questCompleted({ questId: quest.id, characterId: interaction.user.id })
   );
