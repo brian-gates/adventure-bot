@@ -7,7 +7,6 @@ import { Item } from "equipment/Item";
 import { equipmentFilter, LootResult } from "../../character/loot/loot";
 import { Monster } from "../../monster/Monster";
 import { AttackResult } from "../../attack/AttackResult";
-import { updateCharacterQuestProgess } from "../../quest/updateQuestProgess";
 import { clamp } from "remeda";
 
 export const isStatusEffectExpired = (effect: StatusEffect): boolean =>
@@ -55,17 +54,12 @@ const characterSlice = createSlice({
     },
 
     characterAttacked(state, action: PayloadAction<AttackResult>) {
-      const { attackerId, defenderId, totalDamage, outcome } = action.payload;
+      const { defenderId, totalDamage, outcome } = action.payload;
       const defender = state.charactersById[defenderId];
       if (outcome === "hit")
-        // TODO: test this
-        adjustHP({
-          amount: -totalDamage,
-          characterId: defenderId,
-        });
-      if (defender.hp - totalDamage > 0) {
-        updateCharacterQuestProgess(defender, "survivor", totalDamage);
-      }
+        defender.hp = clamp(defender.hp - totalDamage, { min: 0 });
+      if (defender.hp - totalDamage > 0 && defender.quests.survivor)
+        defender.quests.survivor.progress += totalDamage;
     },
 
     updateCharacterCooldowns(
