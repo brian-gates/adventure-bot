@@ -1,7 +1,3 @@
-import { Weapon } from "../equipment/Weapon";
+import { Character } from "../character/Character";
 
-export type Trap = {
-  weapon: Weapon;
-  active: boolean;
-  cooldown: number;
-};
+export type Trap = Character;

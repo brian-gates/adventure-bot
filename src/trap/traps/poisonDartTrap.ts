@@ -18,16 +18,13 @@ export function poisonDartTrap(): Trap {
       },
       onHitEffects: [
         {
-          targetDefense: "body",
-          statusEffect: {
-            name: "Poison",
-            debuff: true,
-            buff: false,
-            modifiers: {
-              attackBonus: -2,
-            },
-            duration: 30 * 60000,
+          name: "Poison",
+          debuff: true,
+          buff: false,
+          modifiers: {
+            attackBonus: -2,
           },
+          duration: 30 * 60000,
         },
       ],
       damageMax: 6,

@@ -40,9 +40,6 @@ export const execute = async (
     return;
   }
   const attackResult = playerAttack(attacker.id, defender.id);
-  const lootResult = isKnockedOut(defendingUser)
-    ? loot({ looterId: attacker.id, targetId: defender.id })
-    : undefined;
   if (attackResult.outcome === "cooldown") {
     await interaction.editReply(
       `You can attack again ${cooldownRemainingText(
@@ -52,10 +49,15 @@ export const execute = async (
     );
     return;
   }
+
   if (attackResult.outcome === "targetNotFound") {
     await interaction.editReply(`Target not found.`);
     return;
   }
+
+  const lootResult = isKnockedOut(defendingUser)
+    ? loot({ looterId: attacker.id, targetId: defender.id })
+    : undefined;
 
   await interaction.editReply({
     embeds: attackEmbeds({
@@ -68,17 +70,17 @@ export const execute = async (
   });
   await sleep(2000);
   if (getHP(defendingUser) > 0) {
-    const result = characterAttack(defender.id, attacker.id);
+    const attackResult = characterAttack(defender.id, attacker.id);
     const lootResult = isKnockedOut(attackingUser)
       ? loot({ looterId: defender.id, targetId: attacker.id })
       : undefined;
-    if (result.outcome === "targetNotFound") {
+    if (attackResult.outcome === "targetNotFound") {
       await interaction.editReply(`Target not found.`);
       return;
     }
     await interaction.followUp({
       embeds: retaliationEmbeds({
-        result,
+        attackResult,
         interaction,
         defender,
         attacker,
@@ -111,13 +113,13 @@ function attackEmbeds({
 }
 
 function retaliationEmbeds({
-  result,
+  attackResult: result,
   interaction,
   defender,
   attacker,
   lootResult,
 }: {
-  result: AttackResult;
+  attackResult: AttackResult;
   interaction: CommandInteraction;
   defender: Character;
   attacker: Character;

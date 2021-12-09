@@ -7,6 +7,7 @@ export function slowDustTrap(): Trap {
     cooldown: 0,
     weapon: {
       name: "Slow Dust Trap",
+      description: "A trap that slows the enemy",
       type: "weapon",
       accuracyDescriptors: {
         missed: [
@@ -22,22 +23,18 @@ export function slowDustTrap(): Trap {
       },
       onHitEffects: [
         {
-          targetDefense: "body",
-          statusEffect: {
-            name: "Poison",
-            debuff: true,
-            buff: false,
-            modifiers: {
-              attackBonus: -2,
-            },
-            duration: 30 * 60000,
+          name: "Slow Dust",
+          debuff: true,
+          buff: false,
+          modifiers: {
+            attackBonus: -2,
           },
+          duration: 30 * 60000,
         },
       ],
       damageMax: 6,
       targetDefense: "ac",
       id: randomUUID(),
-      description: "A dart trap",
       goldValue: 30,
       equippable: true,
     },

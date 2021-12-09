@@ -1,5 +1,3 @@
-import { DefenseStat } from "../character/Stats";
-import { StatusEffect } from "../statusEffects/StatusEffect";
 import { Item } from "./Item";
 import { Weapon } from "./Weapon";
 
@@ -8,12 +6,6 @@ export type Equippable = Item & {
   type: "weapon" | "armor" | "shield" | "hat" | "amulet" | "ring";
 };
 export type Tradeable = Item & { tradeable: true };
-
-export type OnHitEffect = {
-  damageMax?: number;
-  targetDefense: DefenseStat;
-  statusEffect?: StatusEffect;
-};
 
 export type Armor = Equippable & {
   type: "armor";

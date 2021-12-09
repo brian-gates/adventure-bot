@@ -1,11 +1,12 @@
 import { DefenseStat } from "../character/Stats";
-import { Equippable, OnHitEffect } from "./equipment";
+import { StatusEffect } from "../statusEffects/StatusEffect";
+import { Equippable } from "./equipment";
 
 export type Weapon = Equippable & {
   type: "weapon";
   damageMax: number;
   targetDefense: DefenseStat;
-  onHitEffects?: OnHitEffect[];
+  onHitEffects?: StatusEffect[];
   accuracyDescriptors: {
     missedDefinitely: string[];
     missed: string[];

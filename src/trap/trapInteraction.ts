@@ -10,9 +10,7 @@ import { randomTrap } from "./randomTrap";
 import { trapAttack, TrapResult } from "./trapAttack";
 import { Character } from "../character/Character";
 
-export const trapInteraction = async (
-  interaction: CommandInteraction
-): Promise<void> => {
+export const trap = async (interaction: CommandInteraction): Promise<void> => {
   const trap = randomTrap();
   const message = await itsATrap(interaction);
   if (!(message instanceof Message)) return;
