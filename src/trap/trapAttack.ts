@@ -15,9 +15,11 @@ export type TrapResult = {
 export const trapAttack = (trap: Trap, targetId: string): TrapResult => {
   const character = getCharacterById(store.getState(), targetId);
   const attackRoll = d20();
-  const damageRoll = Math.ceil(Math.random() * trap.weapon.damageMax);
-  const targetDefense = trap.weapon.targetDefense;
-  const attackBonus = trap.weapon.modifiers?.attackBonus ?? 0;
+  const damageRoll = Math.ceil(
+    Math.random() * (trap.equipment.weapon?.damageMax ?? 6)
+  );
+  const targetDefense = trap.equipment.weapon?.targetDefense ?? "ac";
+  const attackBonus = trap.equipment.weapon?.modifiers?.attackBonus ?? 0;
   const defenseScore = character[targetDefense];
   const outcome = attackRoll + attackBonus >= defenseScore ? "hit" : "miss";
 
