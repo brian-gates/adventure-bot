@@ -1,13 +1,14 @@
 import { Character } from "../../character/Character";
 import { StatusEffect } from "../../statusEffects/StatusEffect";
-import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { createAction, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { QuestId } from "../../quest/quests";
 import { getCharacterStatModified } from "../../character/getCharacterStatModified";
 import { Item } from "equipment/Item";
-import { equipmentFilter, LootResult } from "../../character/loot/loot";
+import { LootResult } from "../../character/loot/loot";
 import { Monster } from "../../monster/Monster";
 import { AttackResult } from "../../attack/AttackResult";
-import { clamp } from "remeda";
+import { clamp, mapValues } from "remeda";
+import { Trap } from "../../trap";
 
 export const isStatusEffectExpired = (effect: StatusEffect): boolean =>
   effect.started
@@ -16,6 +17,9 @@ export const isStatusEffectExpired = (effect: StatusEffect): boolean =>
 
 const charactersById: Record<string, Character> = {};
 const roamingMonsters: string[] = [];
+
+// TODO: export this and use it in the items reducer to clean up the items
+const trapDestroyed = createAction<string>("trap/destroyed");
 
 const characterSlice = createSlice({
   name: "characters",
@@ -30,10 +34,20 @@ const characterSlice = createSlice({
       state.charactersById[character.id] = character;
     },
 
+    characterCreated(state, action: PayloadAction<Character>) {
+      const character = action.payload;
+      state.charactersById[character.id] = character;
+    },
+
     monsterCreated(state, action: PayloadAction<Monster>) {
       const monster = action.payload;
       state.charactersById[monster.id] = monster;
       state.roamingMonsters.push(monster.id);
+    },
+
+    trapCreated(state, action: PayloadAction<Trap>) {
+      const trap = action.payload;
+      state.charactersById[trap.id] = trap;
     },
 
     characterLooted(state, action: PayloadAction<LootResult>) {
@@ -44,12 +58,11 @@ const characterSlice = createSlice({
 
       const target = state.charactersById[targetId];
       target.gold -= goldTaken;
-      const isTakenItem = (item: Item) =>
-        itemsTaken.find((i) => i.id === item.id);
-      target.inventory = target.inventory.filter((item) => !isTakenItem(item));
-      target.equipment = equipmentFilter(
-        target.equipment,
-        (item) => !isTakenItem(item)
+      target.inventory = target.inventory.filter(
+        (id) => !itemsTaken.includes(id)
+      );
+      target.equipment = mapValues(target.equipment, (id) =>
+        id && itemsTaken.includes(id) ? undefined : id
       );
     },
 
@@ -174,6 +187,25 @@ const characterSlice = createSlice({
       };
     },
 
+    itemRemovedFromCharacter(
+      state,
+      action: PayloadAction<{
+        characterId: string;
+        itemId: string;
+      }>
+    ) {
+      const { characterId, itemId } = action.payload;
+      const character = state.charactersById[characterId];
+      if (!character) return;
+      state.charactersById[character.id] = {
+        ...character,
+        equipment: mapValues(character.equipment, (id) =>
+          id === itemId ? undefined : id
+        ),
+        inventory: character.inventory.filter((id) => id !== itemId),
+      };
+    },
+
     addItemToInventory(
       state,
       action: PayloadAction<{
@@ -187,9 +219,15 @@ const characterSlice = createSlice({
       }
       state.charactersById[character.id] = {
         ...character,
-        inventory: [...character.inventory, item],
+        inventory: [...character.inventory, item.id],
       };
     },
+  },
+  extraReducers: (builder) => {
+    builder.addCase(trapDestroyed, (state, action) => {
+      const trapId = action.payload;
+      delete state.charactersById[trapId];
+    });
   },
 });
 
@@ -208,6 +246,9 @@ export const {
   characterLooted,
   monsterCreated,
   characterAttacked,
+  itemRemovedFromCharacter,
+  characterCreated,
+  trapCreated,
 } = characterSlice.actions;
 
 export default characterSlice.reducer;

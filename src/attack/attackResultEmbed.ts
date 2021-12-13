@@ -1,10 +1,10 @@
-import { CommandInteraction, MessageEmbed } from "discord.js";
+import { attackFlavorText } from "./attackFlavorText";
 import { AttackResult } from "../attack/AttackResult";
 import { attackRollText } from "./attackRollText";
-import { attackFlavorText } from "./attackFlavorText";
-import { getCharacterById } from "../store/selectors";
-import store from "../store";
+import { CommandInteraction, MessageEmbed } from "discord.js";
 import { damgeTakenField, hpBarField } from "../character";
+import { selectCharacterById } from "../store/selectors";
+import store from "../store";
 
 export function attackResultEmbed({
   result,
@@ -14,7 +14,7 @@ export function attackResultEmbed({
   interaction: CommandInteraction;
 }): MessageEmbed {
   const embed = new MessageEmbed().setDescription(attackFlavorText(result));
-  const defender = getCharacterById(store.getState(), result.defenderId);
+  const defender = selectCharacterById(store.getState(), result.defenderId);
 
   switch (result.outcome) {
     case "hit":

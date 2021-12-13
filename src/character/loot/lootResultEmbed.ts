@@ -1,4 +1,6 @@
 import { MessageEmbed } from "discord.js";
+import store from "../../store";
+import { selectItemsById } from "../../store/selectors";
 import { getCharacter } from "../getCharacter";
 import { LootResult } from "./loot";
 
@@ -13,7 +15,7 @@ export const lootResultEmbed = (lootResult: LootResult): MessageEmbed => {
     embed.setImage(lootee.profile);
     embed.setThumbnail(looter.profile);
   }
-  lootResult.itemsTaken.forEach((item) =>
+  selectItemsById(store.getState(), lootResult.itemsTaken).forEach((item) =>
     embed.addField(item.name, item.description)
   );
   return embed;

@@ -6,10 +6,11 @@ import { getCharacter } from "../getCharacter";
 import store from "../../store";
 import { Item } from "../../equipment/Item";
 import { characterLooted } from "../../store/slices/characters";
+import { selectItemsById } from "../../store/selectors";
 
 export type LootResult = {
   id: string;
-  itemsTaken: Item[];
+  itemsTaken: string[];
   goldTaken: number;
   looterId: string;
   targetId: string;
@@ -34,7 +35,7 @@ export function loot({
   const loot: LootResult = {
     id: randomUUID(),
     goldTaken: target.gold,
-    itemsTaken: target.inventory.filter(isLootable),
+    itemsTaken: inventoryFilter(target.inventory, isLootable),
     looterId: looter.id,
     targetId: target.id,
     timestamp: new Date().toString(),
@@ -45,11 +46,19 @@ export function loot({
   return loot;
 }
 
+export const inventoryFilter = (
+  itemIds: string[],
+  predicate: (item: Item) => boolean
+): string[] =>
+  selectItemsById(store.getState(), itemIds)
+    .filter(predicate)
+    .map((item) => item.id);
+
 export const equipmentFilter = (
   equipment: Character["equipment"],
   predicate: (item: Item) => boolean
 ): Character["equipment"] =>
-  values(equipment)
+  selectItemsById(store.getState(), values(equipment))
     .filter(predicate)
     .reduce(
       (equipment, item) => ({

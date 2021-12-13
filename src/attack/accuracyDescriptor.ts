@@ -2,17 +2,18 @@ import { mentionCharacter } from "../character/mentionCharacter";
 import { Weapon } from "../equipment/Weapon";
 import { randomArrayElement } from "../monster/randomArrayElement";
 import store from "../store";
-import { getCharacterById } from "../store/selectors";
+import { selectCharacterById, getEquipment } from "../store/selectors";
 import { AttackResult } from "./AttackResult";
 
 export function accuracyDescriptor(result: AttackResult): string {
   const accuracy = result.attackRoll + result.attackBonus - result.defense;
-  const attacker = getCharacterById(store.getState(), result.attackerId);
-  const defender = getCharacterById(store.getState(), result.defenderId);
+  const attacker = selectCharacterById(store.getState(), result.attackerId);
+  const defender = selectCharacterById(store.getState(), result.defenderId);
+  const { weapon } = getEquipment(store.getState(), attacker.id);
 
   const descriptor = getWeaponAccuracyDescriptor(
     accuracy,
-    attacker.equipment.weapon?.accuracyDescriptors
+    weapon?.accuracyDescriptors
   );
 
   return descriptor

@@ -1,8 +1,10 @@
-import { updateCharacter } from "../character/updateCharacter";
 import { Character } from "../character/Character";
-import { grantCharacterItem } from "./grantCharacterItem";
-import { removeItemIdFromCharacter } from "./removeItemIdFromCharacter";
 import { Tradeable } from "./equipment";
+import store from "../store";
+import {
+  addItemToInventory,
+  itemRemovedFromCharacter,
+} from "../store/slices/characters";
 
 export function giveItem({
   sender,
@@ -19,13 +21,9 @@ export function giveItem({
     return false;
   }
   if (sender.id === recipient.id) return true;
-  const character = removeItemIdFromCharacter({
-    character: sender,
-    itemId: item.id,
-  });
-  // take from sender
-  if (character) updateCharacter(character);
-  // give to recipient
-  updateCharacter(grantCharacterItem(recipient, item));
+  store.dispatch(
+    itemRemovedFromCharacter({ characterId: sender.id, itemId: item.id })
+  );
+  store.dispatch(addItemToInventory({ character: recipient, item }));
   return true;
 }

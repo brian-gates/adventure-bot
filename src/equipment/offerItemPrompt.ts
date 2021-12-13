@@ -10,14 +10,19 @@ import { isTradeable } from "./equipment";
 
 import { giveItem } from "./giveItem";
 import { itemEmbed } from "./itemEmbed";
-import { removeItemIdFromCharacter } from "./removeItemIdFromCharacter";
+import { selectItemsById } from "../store/selectors";
+import store from "../store";
+import { itemRemovedFromCharacter } from "../store/slices/characters";
 
 export const offerItemPrompt = async (
   interaction: CommandInteraction
 ): Promise<void> => {
-  const sender = getUserCharacter(interaction.user);
-  const inventory = sender.inventory.filter(isTradeable);
-  if (inventory.length === 0) {
+  const character = getUserCharacter(interaction.user);
+  const tradeableInventory = selectItemsById(
+    store.getState(),
+    character.inventory
+  ).filter(isTradeable);
+  if (tradeableInventory.length === 0) {
     interaction.followUp(`No items to offer.`);
     return;
   }
@@ -28,7 +33,7 @@ export const offerItemPrompt = async (
       new MessageActionRow({
         components: [
           itemSelect({
-            inventory,
+            inventory: tradeableInventory,
             placeholder: "Which item to be rid of?",
           }),
         ],
@@ -53,7 +58,7 @@ export const offerItemPrompt = async (
     .catch(() => {
       timeout = true;
       message.edit({
-        content: `${sender.name} decided not to offer any items.`,
+        content: `${character.name} decided not to offer any items.`,
         components: [],
       });
     });
@@ -61,17 +66,17 @@ export const offerItemPrompt = async (
   if (!response) return;
   if (response.isButton()) {
     message.edit({
-      content: `${sender.name} decided not to offer any items.`,
+      content: `${character.name} decided not to offer any items.`,
       components: [],
     });
   }
   if (!response.isSelectMenu()) return;
-  const item = inventory[parseInt(response.values[0])];
+  const item = tradeableInventory[parseInt(response.values[0])];
   if (timeout || !item) return;
   if (!item) return;
   const offer = await interaction.followUp({
     fetchReply: true,
-    content: `${sender.name} offers their ${item.name}.`,
+    content: `${character.name} offers their ${item.name}.`,
     embeds: [itemEmbed({ item, interaction })],
     components: [
       new MessageActionRow({
@@ -93,7 +98,9 @@ export const offerItemPrompt = async (
       time: 60000,
     })
     .catch(() => {
-      removeItemIdFromCharacter({ character: sender, itemId: item.id });
+      store.dispatch(
+        itemRemovedFromCharacter({ characterId: character.id, itemId: item.id })
+      );
       offer.edit({
         content: `${item.name} is dust in the wind.`,
         components: [],
@@ -102,13 +109,13 @@ export const offerItemPrompt = async (
   if (reply && reply.isButton()) {
     const recipient = getUserCharacter(reply.user);
     giveItem({
-      sender,
+      sender: character,
       item,
       recipient,
     });
     offer.edit({ components: [] });
     interaction.followUp(
-      `${recipient.name} took ${sender.name}'s ${item.name}`
+      `${recipient.name} took ${character.name}'s ${item.name}`
     );
   }
 };

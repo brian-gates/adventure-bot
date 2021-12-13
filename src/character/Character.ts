@@ -1,6 +1,4 @@
-import { Armor, Hat, Shield } from "../equipment/equipment";
-import { Weapon } from "../equipment/Weapon";
-import { Item } from "../equipment/Item";
+import { Equippable } from "../equipment/equipment";
 import { Quest } from "../quest/Quest";
 import { QuestId } from "../quest/quests";
 import { StatusEffect } from "../statusEffects/StatusEffect";
@@ -12,13 +10,8 @@ export type Character = Stats & {
   profile: string;
   hp: number;
 
-  inventory: Item[];
-  equipment: {
-    weapon?: Weapon;
-    armor?: Armor;
-    shield?: Shield;
-    hat?: Hat;
-  };
+  inventory: string[];
+  equipment: Partial<Record<Equippable["type"], string>>;
 
   cooldowns: {
     attack?: string;

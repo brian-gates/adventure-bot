@@ -3,6 +3,7 @@ import { AttackResult } from "./AttackResult";
 import store from "../store";
 import { characterAttacked } from "../store/slices/characters";
 import { getCharacter, getCharacterStatModified } from "../character";
+import { getEquipment } from "../store/selectors";
 
 export const characterAttack = (
   attackerId: string,
@@ -18,7 +19,8 @@ export const characterAttack = (
   const attackRoll = d20();
   const attackBonus = getCharacterStatModified(attacker, "attackBonus");
   const damageBonus = getCharacterStatModified(attacker, "damageBonus");
-  const targetDefense = attacker.equipment.weapon?.targetDefense ?? "ac";
+  const { weapon } = getEquipment(store.getState(), attacker.id);
+  const targetDefense = weapon?.targetDefense ?? "ac";
   const defense = getCharacterStatModified(defender, targetDefense);
   const damageRoll = Math.ceil(
     Math.random() * getCharacterStatModified(attacker, "damageMax")

@@ -1,4 +1,3 @@
-import { Character } from "../character/Character";
 import { d20 } from "../utils/dice";
 import { getCharacter } from "../character/getCharacter";
 import { AttackResult } from "./AttackResult";
@@ -6,6 +5,7 @@ import { getCharacterStatModified } from "../character/getCharacterStatModified"
 import { adjustHP } from "../character/adjustHP";
 import store from "../store";
 import { addCharacterQuestProgress } from "../store/slices/characters";
+import { getEquipment } from "../store/selectors";
 
 // TODO: decouple attack calculations from state side effects
 export const attack = (
@@ -17,7 +17,11 @@ export const attack = (
   if (!attacker || !defender) return;
 
   const attackRoll = d20();
+  const attackBonus = getCharacterStatModified(attacker, "attackBonus");
   const damageBonus = getCharacterStatModified(attacker, "damageBonus");
+  const { weapon } = getEquipment(store.getState(), attacker.id);
+  const targetDefense = weapon?.targetDefense ?? "ac";
+  const defense = defender[targetDefense];
   const damageRoll = Math.ceil(
     Math.random() * getCharacterStatModified(attacker, "damageMax")
   );
@@ -27,38 +31,30 @@ export const attack = (
       )
     : 0;
 
-  const damage = damageRoll + monsterDamageRoll + damageBonus;
-  if (
-    attackRoll + getCharacterStatModified(attacker, "attackBonus") >=
-    getCharacterStatModified(defender, "ac")
-  ) {
-    adjustHP(defender.id, -damage);
-    if (defender.hp - damage > 0)
+  const outcome = attackRoll + attackBonus >= defense ? "hit" : "miss";
+  const totalDamage = damageRoll + monsterDamageRoll + damageBonus;
+  if (attackRoll + attackBonus >= getCharacterStatModified(defender, "ac")) {
+    adjustHP(defender.id, -totalDamage);
+    if (defender.hp - totalDamage > 0)
       store.dispatch(
         addCharacterQuestProgress({
           characterId: defenderId,
           questId: "survivor",
-          amount: damage,
+          amount: totalDamage,
         })
       );
-    return {
-      outcome: "hit",
-      attackRoll,
-      damage,
-      damageRoll,
-      monsterDamageRoll,
-      attacker: getCharacter(attacker.id) as Character,
-      defender: getCharacter(defender.id) as Character,
-    };
   }
 
   return {
-    outcome: "miss",
+    outcome,
     attackRoll,
-    damage,
+    totalDamage,
     damageRoll,
     monsterDamageRoll,
-    attacker: getCharacter(attacker.id) as Character,
-    defender: getCharacter(defender.id) as Character,
+    attackerId,
+    defenderId,
+    attackBonus,
+    defense,
+    targetDefense,
   };
 };

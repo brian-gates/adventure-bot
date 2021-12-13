@@ -15,6 +15,8 @@ import { getSaleRate } from "./getSaleRate";
 import { sellValue } from "./sellValue";
 import { goldValue } from "../../equipment/goldValue";
 import { getCharacterUpdate } from "../../character/getCharacterUpdate";
+import { selectItemsById as selectItemsById } from "../../store/selectors";
+import store from "../../store";
 
 export async function sellItemPrompt({
   interaction,
@@ -26,9 +28,11 @@ export async function sellItemPrompt({
     "./images/weapon-shop.jpg",
     "shop.png"
   );
-
   const character = getUserCharacter(interaction.user);
-  const inventory = character.inventory.filter((i) => i.sellable);
+  const inventory = selectItemsById(
+    store.getState(),
+    character.inventory
+  ).filter((i) => i.sellable);
   const message = await interaction.editReply({
     embeds: [
       new MessageEmbed({ title: "Sell which item?" }).setImage(

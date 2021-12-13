@@ -1,6 +1,7 @@
 import { DefenseStat } from "../character/Stats";
 
-type Attack = {
+export type AttackResult = {
+  outcome: "hit" | "miss";
   attackerId: string;
   defenderId: string;
   attackRoll: number;
@@ -11,11 +12,3 @@ type Attack = {
   monsterDamageRoll: number;
   damageRoll: number;
 };
-
-type AttackHit = Attack & {
-  outcome: "hit";
-};
-type AttackMiss = Attack & {
-  outcome: "miss";
-};
-export type AttackResult = AttackHit | AttackMiss;

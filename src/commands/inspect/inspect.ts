@@ -10,6 +10,8 @@ import { statsEmbed } from "../../character/statsEmbed";
 import { itemEmbed } from "../../equipment/itemEmbed";
 import { Character } from "../../character/Character";
 import { getHook } from "./getHook";
+import { getEquipment } from "../../store/selectors";
+import store from "../../store";
 
 export const command = new SlashCommandBuilder()
   .setName("inspect")
@@ -57,7 +59,8 @@ async function inspectThread({
     name: `Inspect ${character.name}`,
   });
   const webhooks = await channel.fetchWebhooks();
-  const equipmentEmbeds = values(character.equipment)
+  const equipment = getEquipment(store.getState(), character.id);
+  const equipmentEmbeds = values(equipment)
     .map((item) => itemEmbed({ item, interaction }))
     .slice(0, 9);
   if (equipmentEmbeds.length)

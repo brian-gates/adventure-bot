@@ -3,7 +3,7 @@ import { getCharacterStatModifier } from "../character/getCharacterStatModifier"
 import { getCharacterStatModified } from "../character/getCharacterStatModified";
 import { AttackResult } from "../attack/AttackResult";
 import { Emoji } from "../Emoji";
-import { getCharacterById } from "../store/selectors";
+import { selectCharacterById } from "../store/selectors";
 import store from "../store";
 
 export const attackRollText = ({
@@ -13,8 +13,8 @@ export const attackRollText = ({
   result: AttackResult;
   interaction: CommandInteraction;
 }): string => {
-  const defender = getCharacterById(store.getState(), result.defenderId);
-  const attacker = getCharacterById(store.getState(), result.attackerId);
+  const defender = selectCharacterById(store.getState(), result.defenderId);
+  const attacker = selectCharacterById(store.getState(), result.attackerId);
   const ac = defender.ac;
   const defense = getCharacterStatModifier(defender, result.targetDefense);
   const roll = result.attackRoll;

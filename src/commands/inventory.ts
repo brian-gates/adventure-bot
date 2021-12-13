@@ -9,9 +9,11 @@ import {
 import { getUserCharacter } from "../character/getUserCharacter";
 import { equipInventoryItemPrompt } from "../equipment/equipInventoryItemPrompt";
 import { isTradeable } from "../equipment/equipment";
-import { equippableInventory } from "../equipment/equippableInventory";
+import { equippableInventory } from "../store/selectors/equippableInventory";
 import { itemEmbed } from "../equipment/itemEmbed";
 import { offerItemPrompt as offerItemPrompt } from "../equipment/offerItemPrompt";
+import store from "../store";
+import { selectItemsById } from "../store/selectors";
 
 export const command = new SlashCommandBuilder()
   .setName("inventory")
@@ -60,11 +62,10 @@ export default { command, execute };
 
 function inventoryMain(interaction: CommandInteraction): MessageOptions {
   const character = getUserCharacter(interaction.user);
-  const hasItemsToOffer = character.inventory.filter(isTradeable).length > 0;
-  const hasItemsToEquip = equippableInventory(character).length > 0;
+  const inventory = selectItemsById(store.getState(), character.inventory);
 
   const components = [];
-  if (hasItemsToEquip)
+  if (equippableInventory(character).length > 0)
     components.push(
       new MessageButton({
         customId: "equip",
@@ -72,7 +73,7 @@ function inventoryMain(interaction: CommandInteraction): MessageOptions {
         label: "Equip",
       })
     );
-  if (hasItemsToOffer)
+  if (inventory.some(isTradeable))
     components.push(
       new MessageButton({
         customId: "offer",
@@ -90,7 +91,7 @@ function inventoryMain(interaction: CommandInteraction): MessageOptions {
   );
 
   return {
-    embeds: character.inventory.map((item) =>
+    embeds: inventory.map((item) =>
       itemEmbed({ item, interaction, showEquipStatus: true })
     ),
     components: [

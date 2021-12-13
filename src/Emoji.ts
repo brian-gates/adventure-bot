@@ -35,7 +35,6 @@ const defaultEmojis: {
   renew: "🤍",
   body: "💪",
   mind: "🧠",
-  spirit: "😇",
 };
 
 /**

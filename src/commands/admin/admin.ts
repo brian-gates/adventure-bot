@@ -43,10 +43,6 @@ export const execute = async (
   interaction: CommandInteraction
 ): Promise<void> => {
   switch (interaction.options.getSubcommand()) {
-    case "apply_item_defaults":
-      applyItemDefaults();
-      interaction.editReply("Item defaults applied.");
-      return;
     case "unequip_all":
       unequipAll();
       interaction.editReply("All equipment removed.");
@@ -84,20 +80,6 @@ const setHealth = async (interaction: CommandInteraction) => {
     ...character,
     hp,
   });
-};
-
-const applyItemDefaults = async (): Promise<void> => {
-  getUserCharacters().forEach((character) =>
-    updateCharacter({
-      ...character,
-      inventory: character.inventory.map((item) => ({
-        ...item,
-        id: item.id ?? randomUUID(),
-        sellable: item.sellable ?? item.name !== "heavy crown",
-        tradeable: item.tradeable ?? item.name !== "heavy crown",
-      })),
-    })
-  );
 };
 
 const unequipAll = async (): Promise<void> => {

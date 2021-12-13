@@ -15,7 +15,7 @@ import { buyItemPrompt } from "./buyItemPrompt";
 import { sellItemPrompt } from "./sellItemPrompt";
 import { goldValue } from "../../equipment/goldValue";
 import { getCharacterUpdate } from "../../character/getCharacterUpdate";
-import { isHeavyCrownInPlay } from "../../store/selectors";
+import { hasSellableItems, isHeavyCrownInPlay } from "../../store/selectors";
 import store from "../../store";
 
 export const shop = async (interaction: CommandInteraction): Promise<void> => {
@@ -29,9 +29,6 @@ export const shop = async (interaction: CommandInteraction): Promise<void> => {
   if (!isHeavyCrownInPlay(store.getState()) && Math.random() <= 0.1) {
     inventory.push(heavyCrown());
   }
-
-  const hasStuffToSell =
-    character.inventory.filter((i) => i.sellable).length > 0;
 
   const message = await interaction.followUp(shopMain());
   if (!(message instanceof Message)) return;
@@ -90,7 +87,7 @@ export const shop = async (interaction: CommandInteraction): Promise<void> => {
             }),
           ]
             .concat(
-              hasStuffToSell
+              hasSellableItems(store.getState(), character.id)
                 ? new MessageButton({
                     customId: "sell",
                     label: "Sell",

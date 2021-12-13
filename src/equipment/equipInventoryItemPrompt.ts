@@ -8,7 +8,7 @@ import { getUserCharacter } from "../character/getUserCharacter";
 import { equipItem } from "../character/equipItem";
 import { updateCharacter } from "../character/updateCharacter";
 import { itemSelect } from "./itemSelect";
-import { equippableInventory } from "./equippableInventory";
+import { equippableInventory } from "../store/selectors/equippableInventory";
 
 /**
  * Prompt to equip from available inventory items.

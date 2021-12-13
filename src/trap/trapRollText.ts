@@ -1,10 +1,10 @@
 import { getCharacterStatModified } from "../character/getCharacterStatModified";
 import store from "../store";
-import { getCharacterById } from "../store/selectors";
+import { selectCharacterById } from "../store/selectors";
 import { TrapResult } from "./trapAttack";
 
 export const trapResultText = (result: TrapResult): string => {
-  const defender = getCharacterById(store.getState(), result.defenderId);
+  const defender = selectCharacterById(store.getState(), result.defenderId);
   if (!defender) return "No target";
   if (!result) return "No result";
   return `${result.attackRoll}+${result.attackBonus} (${

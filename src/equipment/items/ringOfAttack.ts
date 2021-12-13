@@ -1,16 +1,18 @@
 import { randomUUID } from "crypto";
 import { Ring } from "../equipment";
+import { createItem } from "./createItem";
 
-export const ringOfAttack = (): Ring => ({
-  id: randomUUID(),
-  type: "ring",
-  name: "Ring of Attack",
-  description: "A ring that increases your accuracy.",
-  modifiers: {
-    attackBonus: 2,
-  },
-  goldValue: 200,
-  equippable: true,
-  sellable: true,
-  tradeable: true,
-});
+export const ringOfAttack = (): Ring =>
+  createItem({
+    id: randomUUID(),
+    type: "ring",
+    name: "Ring of Attack",
+    description: "A ring that increases your accuracy.",
+    modifiers: {
+      attackBonus: 2,
+    },
+    goldValue: 200,
+    equippable: true,
+    sellable: true,
+    tradeable: true,
+  });
