@@ -103,10 +103,10 @@ const characterSlice = createSlice({
       };
     },
 
-    purgeExpiredStatuses(state, action: PayloadAction<Character>) {
-      const character = action.payload;
-
-      state.charactersById[character.id].statusEffects =
+    purgeExpiredStatuses(state, action: PayloadAction<string>) {
+      const characterId = action.payload;
+      const character = state.charactersById[characterId];
+      character.statusEffects =
         character.statusEffects?.filter(
           (effect) => !isStatusEffectExpired(effect)
         ) ?? [];
