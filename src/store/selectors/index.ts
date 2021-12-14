@@ -7,6 +7,24 @@ import { Item } from "../../equipment/Item";
 import { Encounter } from "../../monster/Encounter";
 import { isMonster, Monster } from "../../monster/Monster";
 import { ReduxState } from "../../store";
+import { getAsset } from "../../utils/getAsset";
+
+const decorateCharacterWithAssetProfile = <T extends Character>(
+  character: T
+) => {
+  if (character && character.asset) {
+    return {
+      ...character,
+      profile: getAsset(
+        // @ts-ignore
+        character.asset[0],
+        character.asset[1],
+        character.asset[2],
+        character.id
+      ).s3Url(),
+    };
+  } else return character;
+};
 
 export const selectCharacterById = (state: ReduxState, id: string): Character =>
   state.characters.charactersById[id];
@@ -14,9 +32,9 @@ export const selectCharacterById = (state: ReduxState, id: string): Character =>
 export const getAllCharacters = createSelector(
   (state: ReduxState) => state.characters.charactersById,
   (charactersById) =>
-    Object.values(charactersById).filter(
-      (character) => character.isMonster !== true
-    )
+    Object.values(charactersById)
+      .filter((character) => character.isMonster !== true)
+      .map((c) => decorateCharacterWithAssetProfile<Character>(c))
 );
 
 export const getMonsterById = createSelector(selectCharacterById, (character) =>
