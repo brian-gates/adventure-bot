@@ -96,15 +96,6 @@ const characterSlice = createSlice({
       state.charactersById[character.id].statusEffects?.push(effect);
     },
 
-    purgeExpiredStatuses(state, action: PayloadAction<Character>) {
-      const character = action.payload;
-
-      state.charactersById[character.id].statusEffects =
-        character.statusEffects?.filter(
-          (effect) => !isStatusEffectExpired(effect)
-        ) ?? [];
-    },
-
     addCharacterQuestProgress(
       state,
       action: PayloadAction<{
@@ -199,7 +190,6 @@ const characterSlice = createSlice({
 export const {
   updateCharacter,
   updateCharacterCooldowns,
-  purgeExpiredStatuses,
   updateGold,
   addCharacterStatusEffect,
   addCharacterQuestProgress,
