@@ -191,9 +191,9 @@ export async function chest(
     );
     if (Math.random() <= 0.005 && !selectIsHeavyCrownInPlay(store.getState())) {
       const crown = heavyCrown();
-      updateCharacter(
-        grantCharacterItem(getUserCharacter(interaction.user), crown)
-      );
+      const characterWithItemAndCrown = grantCharacterItem(getUserCharacter(interaction.user), crown)
+      if (characterWithItemAndCrown) updateCharacter(characterWithItemAndCrown);
+
       embed.addField(
         "Heavy Crown",
         `You find a heavy crown. ${crown.description}`
@@ -205,9 +205,8 @@ export async function chest(
     }
     if (Math.random() <= 0.2) {
       const item = randomChestItem();
-      updateCharacter(
-        grantCharacterItem(getUserCharacter(interaction.user), item)
-      );
+      const characterWithItem = grantCharacterItem(getUserCharacter(interaction.user), item)
+      if (characterWithItem) updateCharacter(characterWithItem);
       if (isEquippable(item)) equipItemPrompt(interaction, item);
     }
   }

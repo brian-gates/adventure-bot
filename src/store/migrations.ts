@@ -5,7 +5,7 @@ import { defaultEncounterWeights } from "./slices/encounters";
 /*
  * This is the current version and should match the latest version
  */
-export const persistVersion = 2;
+export const persistVersion = 3;
 
 /**
  * Here we use RootReducerState instead of ReduxState to avoid cyclical type references

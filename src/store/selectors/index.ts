@@ -24,12 +24,16 @@ const decorateCharacterWithAssetProfile = <T extends Character>(
 
 export const selectCharacterById = createSelector(
   (state: ReduxState, id: string) => state.characters.charactersById[id],
-  (character) => ({
-    ...decorateCharacterWithAssetProfile(character),
-    statusEffects: character?.statusEffects?.filter(
-      (effect) => !isStatusEffectExpired(effect)
-    ),
-  })
+  (character) => {
+    if (character) {
+      return {
+        ...decorateCharacterWithAssetProfile(character),
+        statusEffects: character?.statusEffects?.filter(
+          (effect) => !isStatusEffectExpired(effect)
+        ),
+      }
+    }
+  }
 );
 
 export const selectAllCharacters = createSelector(

@@ -26,6 +26,7 @@ export function giveItem({
   // take from sender
   if (character) updateCharacter(character);
   // give to recipient
-  updateCharacter(grantCharacterItem(recipient, item));
+  const characterWithItem = grantCharacterItem(recipient, item)
+  if (characterWithItem) updateCharacter(characterWithItem);
   return true;
 }
