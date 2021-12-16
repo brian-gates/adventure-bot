@@ -6,29 +6,48 @@ import { getCharacterStatModified } from "../../character/getCharacterStatModifi
 import { Item } from "equipment/Item";
 import { equipmentFilter, LootResult } from "../../character/loot/loot";
 import { Monster } from "../../monster/Monster";
+import { isStatusEffectExpired } from "../../statusEffects/isStatusEffectExpired";
 
-export const isStatusEffectExpired = (effect: StatusEffect): boolean =>
-  Date.now() > new Date(effect.started).valueOf() + effect.duration;
+export type CharacterState = Omit<Character, "inventory"> & {
+  inventory: string[];
+};
 
-const charactersById: Record<string, Character> = {};
+const charactersById: Record<string, CharacterState> = {};
+const itemsById: Record<string, Item> = {};
 const roamingMonsters: string[] = [];
 
 const characterSlice = createSlice({
   name: "characters",
   initialState: {
     charactersById,
+    itemsById,
     roamingMonsters,
     isHeavyCrownInPlay: false,
   },
   reducers: {
     updateCharacter(state, action: PayloadAction<Character>) {
       const character = action.payload;
-      state.charactersById[character.id] = character;
+
+      character.inventory.forEach((item) => {
+        state.itemsById[item.id] = item;
+      });
+
+      Object.assign(state.charactersById[character.id], {
+        ...character,
+        inventory: character.inventory.map((item) => item.id),
+        statusEffects:
+          character.statusEffects?.filter(
+            (effect) => !isStatusEffectExpired(effect)
+          ) ?? [],
+      });
     },
 
     monsterCreated(state, action: PayloadAction<Monster>) {
       const monster = action.payload;
-      state.charactersById[monster.id] = monster;
+      Object.assign(state.charactersById[monster.id], {
+        ...monster,
+        inventory: monster.inventory.map((item) => item.id),
+      });
       state.roamingMonsters.push(monster.id);
     },
 
@@ -36,13 +55,18 @@ const characterSlice = createSlice({
       const { targetId, looterId, itemsTaken, goldTaken } = action.payload;
       const looter = state.charactersById[looterId];
       looter.gold += goldTaken;
-      looter.inventory = [...looter.inventory, ...itemsTaken];
+      looter.inventory = [
+        ...looter.inventory,
+        ...itemsTaken.map((item) => item.id),
+      ];
 
       const target = state.charactersById[targetId];
       target.gold -= goldTaken;
       const isTakenItem = (item: Item) =>
         itemsTaken.find((i) => i.id === item.id);
-      target.inventory = target.inventory.filter((item) => !isTakenItem(item));
+      target.inventory = target.inventory.filter(
+        (id) => !itemsTaken.find((i) => i.id === id)
+      );
       target.equipment = equipmentFilter(
         target.equipment,
         (item) => !isTakenItem(item)
@@ -57,10 +81,7 @@ const characterSlice = createSlice({
       }>
     ) {
       const { character, cooldowns } = action.payload;
-      state.charactersById[character.id] = {
-        ...character,
-        cooldowns,
-      };
+      state.charactersById[character.id].cooldowns = cooldowns;
     },
 
     addCharacterStatusEffect(
@@ -71,10 +92,8 @@ const characterSlice = createSlice({
       }>
     ) {
       const { character, effect } = action.payload;
-      state.charactersById[character.id] = {
-        ...character,
-        statusEffects: [...(character.statusEffects || []), effect],
-      };
+      if (!state.charactersById[character.id]) return;
+      state.charactersById[character.id].statusEffects?.push(effect);
     },
 
     purgeExpiredStatuses(state, action: PayloadAction<Character>) {
@@ -135,11 +154,10 @@ const characterSlice = createSlice({
 
     grantDivineBlessing(state, action: PayloadAction<Character>) {
       const character = action.payload;
-      state.charactersById[character.id] = {
-        ...character,
-        maxHP: character.maxHP + 1,
-        hp: character.hp + 1,
-      };
+      const characterState = state.charactersById[character.id];
+      if (!characterState) return;
+      characterState.hp += 1;
+      characterState.maxHP += 1;
     },
 
     adjustCharacterHP(
@@ -155,10 +173,9 @@ const characterSlice = createSlice({
       if (newHp < 0) newHp = 0;
       if (newHp > maxHP) newHp = maxHP;
 
-      state.charactersById[character.id] = {
-        ...character,
-        hp: newHp,
-      };
+      const characterState = state.charactersById[character.id];
+      if (!characterState) return;
+      characterState.hp = newHp;
     },
 
     addItemToInventory(
@@ -172,10 +189,9 @@ const characterSlice = createSlice({
       if (item.name === "heavy crown") {
         state.isHeavyCrownInPlay = true;
       }
-      state.charactersById[character.id] = {
-        ...character,
-        inventory: [...character.inventory, item],
-      };
+      const characterState = state.charactersById[character.id];
+      if (!characterState) return;
+      characterState.inventory.push(item.id);
     },
   },
 });
