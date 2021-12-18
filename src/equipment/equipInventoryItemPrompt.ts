@@ -3,6 +3,8 @@ import {
   Message,
   MessageActionRow,
   MessageButton,
+  ThreadChannel,
+  Webhook,
 } from "discord.js";
 import { getUserCharacter } from "../character/getUserCharacter";
 import { equipItem } from "../character/equipItem";
@@ -15,9 +17,15 @@ import { equippableInventory } from "./equippableInventory";
  * @param interaction
  * @returns
  */
-export const equipInventoryItemPrompt = async (
-  interaction: CommandInteraction
-): Promise<void> => {
+export async function equipInventoryItemPrompt({
+  interaction,
+  thread,
+  hook,
+}: {
+  interaction: CommandInteraction;
+  thread: ThreadChannel;
+  hook: Webhook;
+}): Promise<void> {
   const character = getUserCharacter(interaction.user);
   const inventory = equippableInventory(character);
   if (inventory.length === 0) {
@@ -26,7 +34,8 @@ export const equipInventoryItemPrompt = async (
     });
     return;
   }
-  const message = await interaction.followUp({
+
+  const message = await hook.send({
     content: "What would you like to equip?",
     components: [
       new MessageActionRow({
@@ -47,7 +56,9 @@ export const equipInventoryItemPrompt = async (
         ],
       }),
     ],
+    threadId: thread.id,
   });
+
   if (!(message instanceof Message)) return;
 
   let done = false;
@@ -76,4 +87,4 @@ export const equipInventoryItemPrompt = async (
       interaction.followUp(`${character.name} equipped their ${item.name}.`);
     }
   }
-};
+}

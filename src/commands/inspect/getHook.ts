@@ -6,7 +6,13 @@ import {
   Webhook,
 } from "discord.js";
 
-export type HookName = "Equipment" | "Status Effects" | "Quests" | "Characters";
+// cannot exceed length of 10
+export type HookName =
+  | "Equipment"
+  | "Status Effects"
+  | "Quests"
+  | "Characters"
+  | "Inventory";
 
 export async function getHook({
   name,
